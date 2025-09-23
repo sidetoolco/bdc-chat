@@ -43,3 +43,6 @@ logs
 *.tmp
 *.temp
 .env
+
+# Vercel
+.vercel
