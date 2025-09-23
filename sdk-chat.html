@@ -220,6 +220,21 @@
             border: none;
         }
 
+        /* Hide Powered by Retell branding */
+        iframe[src*="retellai"] {
+            margin-bottom: -40px !important;
+            height: calc(100% + 40px) !important;
+        }
+
+        /* Hide floating widget button */
+        .retell-widget-button {
+            display: none !important;
+        }
+
+        #retell-widget-root {
+            display: none !important;
+        }
+
         .loading-state {
             text-align: center;
             padding: 2rem;
@@ -424,6 +439,7 @@
                 widgetScript.setAttribute('data-dynamic', JSON.stringify({
                     name: customerName,
                     greeting: 'Hola',
+                    amount: debtAmount,
                     debt_amount: debtAmount,
                     due_date: dueDate
                 }));

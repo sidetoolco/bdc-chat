@@ -34,6 +34,7 @@ module.exports = async (req, res) => {
       custom_data: {
         name: customerName,
         greeting: 'Hola',
+        amount: debtAmount,
         customer_name: customerName,
         debt_amount: debtAmount,
         due_date: dueDate,
