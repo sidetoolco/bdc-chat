@@ -25,101 +25,6 @@
             height: 100vh;
         }
 
-        /* Sidebar */
-        .sidebar {
-            width: 240px;
-            background: white;
-            border-right: 1px solid #e5e7eb;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .logo {
-            height: 32px;
-            width: auto;
-        }
-
-        .sidebar-nav {
-            flex: 1;
-            padding: 12px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 12px;
-            border-radius: 8px;
-            color: #6b7280;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-            margin-bottom: 4px;
-            cursor: pointer;
-        }
-
-        .nav-item:hover {
-            background: #f3f4f6;
-            color: #111827;
-        }
-
-        .nav-item.active {
-            background: #f3f4f6;
-            color: #111827;
-        }
-
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 12px;
-            stroke: currentColor;
-        }
-
-        .sidebar-footer {
-            padding: 12px;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            border-radius: 8px;
-            background: #f9fafb;
-        }
-
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            margin-right: 12px;
-        }
-
-        .user-info {
-            flex: 1;
-        }
-
-        .user-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #111827;
-        }
-
-        .user-role {
-            font-size: 12px;
-            color: #6b7280;
-        }
 
         /* Main Content */
         .main-content {
@@ -436,13 +341,6 @@
                 flex-direction: column;
             }
 
-            .sidebar {
-                width: 100%;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid #e5e7eb;
-            }
-
             .content {
                 flex-direction: column;
             }
@@ -455,42 +353,6 @@
 </head>
 <body>
     <div class="layout">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <img src="kleva-logo.webp" alt="Kleva" class="logo">
-            </div>
-
-            <nav class="sidebar-nav">
-                <a href="#" class="nav-item active">
-                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7" rx="1"/>
-                        <rect x="14" y="3" width="7" height="7" rx="1"/>
-                        <rect x="3" y="14" width="7" height="7" rx="1"/>
-                        <rect x="14" y="14" width="7" height="7" rx="1"/>
-                    </svg>
-                    Dashboard
-                </a>
-
-                <a href="#" class="nav-item">
-                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                    </svg>
-                    Calls
-                </a>
-            </nav>
-
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <div class="user-avatar">A</div>
-                    <div class="user-info">
-                        <div class="user-name">Admin</div>
-                        <div class="user-role">Supervisor</div>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-header">
