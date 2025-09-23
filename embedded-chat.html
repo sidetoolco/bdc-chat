@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kleva - Collections Chat</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="favicon.svg" type="image/svg+xml">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', system-ui, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            min-height: 100vh;
+            antialiased: true;
+        }
+
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+            background: #f9fafb;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 14rem;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .logo-container {
+            padding: 0.5rem 1rem;
+        }
+
+        .logo-container img {
+            height: 30px;
+            width: auto;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: white;
+            border-radius: 0.5rem;
+            margin: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .user-profile:hover {
+            background: #f9fafb;
+        }
+
+        .user-avatar {
+            width: 2rem;
+            height: 2rem;
+            background: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+        }
+
+        .user-avatar span {
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #111827;
+            margin-bottom: 0.125rem;
+        }
+
+        .user-company {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 1rem 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.25rem;
+            border-radius: 0.5rem;
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .nav-item.active {
+            background: #f3f4f6;
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .nav-icon {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.75rem;
+        }
+
+        /* Content Area */
+        .content-area {
+            margin-left: 14rem;
+            flex: 1;
+            background: #f9fafb;
+            min-height: 100vh;
+        }
+
+        .content-wrapper {
+            margin: 1.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            min-height: calc(100vh - 3rem);
+        }
+
+        .content-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 400;
+            color: #111827;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        /* Form Container */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            height: fit-content;
+        }
+
+        .form-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .required {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            font-size: 0.875rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #9333ea;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+        }
+
+        .amount-input-wrapper {
+            position: relative;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .amount-input {
+            padding-left: 2rem;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: #9333ea;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.625rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover {
+            background: #7e22ce;
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Embedded Chat Container */
+        .chat-embed-container {
+            width: 100%;
+            height: 650px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #9333ea, #7e22ce);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .chat-avatar svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .chat-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+
+        .chat-info p {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .chat-body {
+            flex: 1;
+            width: 100%;
+            position: relative;
+            background: #fafafa;
+        }
+
+        /* Trial Badge */
+        .trial-badge {
+            margin: 1rem;
+            padding: 0.75rem;
+            background: linear-gradient(to right, #faf5ff, #f9fafb);
+            border: 1px solid #e9d5ff;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        .badge-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .crown-icon {
+            width: 1rem;
+            height: 1rem;
+            color: #9333ea;
+        }
+
+        .badge-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #7e22ce;
+        }
+
+        .badge-text {
+            font-size: 0.75rem;
+            color: #9333ea;
+        }
+
+        .pulse-animation {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 160px;
+            height: 160px;
+            margin-bottom: 2rem;
+        }
+
+        .pulse-ring {
+            position: absolute;
+            border-radius: 50%;
+            animation: slowPulse 8s ease-in-out infinite;
+        }
+
+        .pulse-ring:nth-child(1) {
+            width: 128px;
+            height: 128px;
+            background: #e9d5ff;
+            opacity: 0.2;
+            animation-delay: 0s;
+        }
+
+        .pulse-ring:nth-child(2) {
+            width: 96px;
+            height: 96px;
+            background: #d8b4fe;
+            opacity: 0.3;
+            animation-delay: 2s;
+        }
+
+        .pulse-ring:nth-child(3) {
+            width: 64px;
+            height: 64px;
+            background: #c084fc;
+            opacity: 0.4;
+            animation-delay: 4s;
+        }
+
+        .pulse-center {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            background: #9333ea;
+            border-radius: 50%;
+            animation: slowPulse 6s ease-in-out infinite;
+            animation-delay: 1s;
+        }
+
+        @keyframes slowPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.6;
+            }
+        }
+
+        /* Welcome state */
+        .welcome-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 3rem;
+            text-align: center;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .content-area {
+                margin-left: 0;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-embed-container {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="kleva-logo.webp" alt="Kleva">
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <span>CG</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">Cristian Greppi</div>
+                        <div class="user-company">Banco de Córdoba</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="/playground" class="nav-item active">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+                    </svg>
+                    Playground
+                </a>
+            </nav>
+            <div class="trial-badge">
+                <div class="badge-header">
+                    <svg class="crown-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14l-1 7H6l-1-7zM5 12l-2-5m0 0l3 2m-3-2v5m19 0l2-5m0 0l-3 2m3-2v5M9 7h6l-1 2H10l-1-2z" />
+                    </svg>
+                    <span class="badge-title">Free Trial</span>
+                </div>
+                <div class="badge-text">
+                    You're viewing a reduced version of our app.
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="content-wrapper">
+                <header class="content-header">
+                    <h1 class="page-title">Playground - Collections</h1>
+                </header>
+                <main class="main-content">
+                    <div class="form-grid">
+                        <!-- Customer Data Form -->
+                        <div class="form-card">
+                            <h3>Customer Data</h3>
+                            <form id="customerForm">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Full Name<span class="required">*</span>
+                                    </label>
+                                    <input type="text" class="form-input" id="customerName" placeholder="Customer's full name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Debt Amount<span class="required">*</span>
+                                    </label>
+                                    <div class="amount-input-wrapper">
+                                        <span class="currency-symbol">$</span>
+                                        <input type="number" class="form-input amount-input" id="debtAmount" placeholder="0.00" step="0.01" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Due Date<span class="required">*</span>
+                                    </label>
+                                    <input type="date" class="form-input" id="dueDate" required>
+                                </div>
+                                <button type="submit" class="btn-primary">Start Chat</button>
+                            </form>
+                            <p style="text-align: center; margin-top: 1rem; color: #6b7280; font-size: 0.875rem;">
+                                Complete the form to enable chat
+                            </p>
+                        </div>
+
+                        <!-- Embedded Chat Container -->
+                        <div class="chat-embed-container">
+                            <div class="chat-header">
+                                <div class="chat-avatar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                    </svg>
+                                </div>
+                                <div class="chat-info">
+                                    <h3>Kleva Collections Assistant</h3>
+                                    <p>Banco de Córdoba - AI Agent</p>
+                                </div>
+                            </div>
+                            <div class="chat-body" id="chatBody">
+                                <div class="welcome-state">
+                                    <div class="pulse-animation">
+                                        <span class="pulse-ring"></span>
+                                        <span class="pulse-ring"></span>
+                                        <span class="pulse-ring"></span>
+                                        <span class="pulse-center"></span>
+                                    </div>
+                                    <p style="font-size: 1.125rem; color: #111827; margin-bottom: 0.5rem;">Welcome to Kleva Collections Chat</p>
+                                    <p style="color: #6b7280;">Fill in the customer data to start the conversation</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Retell Web SDK -->
+    <script src="https://sdk.retellai.com/retell-sdk.js"></script>
+
+    <script>
+        // Set minimum date to today
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('dueDate');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.setAttribute('min', today);
+
+            // Handle form submission
+            const form = document.getElementById('customerForm');
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                // Get form data
+                const customerName = document.getElementById('customerName').value;
+                const debtAmount = document.getElementById('debtAmount').value;
+                const dueDate = document.getElementById('dueDate').value;
+
+                // Create dynamic data for the agent
+                const dynamicData = {
+                    name: customerName,
+                    greeting: "Hola",
+                    customer_name: customerName,
+                    debt_amount: debtAmount,
+                    due_date: dueDate,
+                    bank: "Banco de Córdoba",
+                    agent_type: "Collections"
+                };
+
+                // Update chat body with iframe
+                const chatBody = document.getElementById('chatBody');
+
+                // Create the embedded chat URL
+                const baseUrl = 'https://app.retellai.com/chat';
+                const params = new URLSearchParams({
+                    key: 'key_f1b1aa7616495ba07890ef19fcea',
+                    agent_id: 'agent_627fe1d68a83076772b3551df4',
+                    dynamic_variables: JSON.stringify(dynamicData)
+                });
+
+                // Replace content with iframe
+                chatBody.innerHTML = `
+                    <iframe
+                        src="${baseUrl}?${params.toString()}"
+                        style="width: 100%; height: 100%; border: none;"
+                        allow="microphone; camera; autoplay"
+                    ></iframe>
+                `;
+
+                // Store context
+                window.customerContext = dynamicData;
+            });
+        });
+    </script>
+</body>
+</html>
