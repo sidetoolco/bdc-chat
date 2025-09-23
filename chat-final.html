@@ -672,7 +672,7 @@
 
             // Start the conversation
             setTimeout(() => {
-                addReceivedMessage(`Hola. ¿Me comunico con ${customerName}?`);
+                addReceivedMessage(`Hola. Soy Pilar, agente virtual del Banco de Córdoba ¿Me comunico con ${customerName}?`);
             }, 500);
 
             // Load Retell widget in background (hidden)
@@ -715,14 +715,13 @@
             widgetScript.type = 'module';
             widgetScript.setAttribute('data-public-key', 'key_f1b1aa7616495ba07890ef19fcea');
             widgetScript.setAttribute('data-agent-id', 'agent_627fe1d68a83076772b3551df4');
-            widgetScript.setAttribute('data-agent-version', '5');
+            widgetScript.setAttribute('data-agent-version', '6');
             widgetScript.setAttribute('data-dynamic', JSON.stringify({
                 name: customerName,
                 greeting: 'Hola',
                 amount: debtAmount,
-                debt_amount: debtAmount,
                 due_date: dueDate,
-                customer_name: customerName
+                farewell: 'que tengas un buen día'
             }));
 
             document.head.appendChild(widgetScript);
