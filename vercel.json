@@ -29,7 +29,11 @@
     },
     {
       "src": "/",
-      "dest": "/index.html"
+      "dest": "/sdk-chat.html"
+    },
+    {
+      "src": "/index",
+      "dest": "/sdk-chat.html"
     },
     {
       "src": "/(.*)",
