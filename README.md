@@ -24,9 +24,9 @@ Visit: https://sidetoolco.github.io/bdc-chat/
 
 ## Configuration
 
-The chat uses Retell AI agent v5:
+The chat uses Retell AI agent v7:
 - Agent ID: `agent_627fe1d68a83076772b3551df4`
-- Version: 5
+- Version: 7
 - Public Key: `key_f1b1aa7616495ba07890ef19fcea`
 
 ## Usage
