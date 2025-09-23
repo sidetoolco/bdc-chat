@@ -490,10 +490,11 @@
             padding: 2rem;
         }
 
-        /* Embedded iframe styles */
-        .whatsapp-body iframe {
-            background: white;
-            border-radius: 0.5rem;
+        /* Style for widget container */
+        #retell-chat-widget {
+            width: 100%;
+            height: 100%;
+            position: relative;
         }
 
         /* Mobile Responsiveness */
@@ -586,6 +587,7 @@
                                 <div class="loading-state" id="loadingState">
                                     <p style="color: #667781; font-size: 0.875rem;">Fill in customer data to start conversation</p>
                                 </div>
+                                <div id="retell-chat-widget" style="display: none;"></div>
                             </div>
                         </div>
                     </div>
@@ -621,14 +623,9 @@
                 dueDate
             };
 
-            const chatBody = document.getElementById('chatBody');
-
-            // Show loading state
-            chatBody.innerHTML = `
-                <div class="loading-state">
-                    <p style="color: #667781; font-size: 0.875rem;">Connecting to agent...</p>
-                </div>
-            `;
+            // Hide loading state and show widget container
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('retell-chat-widget').style.display = 'block';
 
             // Disable form inputs during conversation
             document.getElementById('customerName').disabled = true;
@@ -636,34 +633,65 @@
             document.getElementById('dueDate').disabled = true;
             document.querySelector('.btn-primary').disabled = true;
 
-            // Create embedded iframe with Retell web call
-            createEmbeddedChat(customerName, debtAmount, dueDate);
+            // Load the widget
+            loadRetellWidget(customerName, debtAmount, dueDate);
         }
 
-        function createEmbeddedChat(customerName, debtAmount, dueDate) {
-            const chatBody = document.getElementById('chatBody');
+        function loadRetellWidget(customerName, debtAmount, dueDate) {
+            // Remove any existing widget
+            const existingWidget = document.getElementById('retell-widget');
+            if (existingWidget) existingWidget.remove();
 
-            // Build the URL with parameters
-            const baseUrl = 'https://retellai.com/chat/';
-            const agentId = 'agent_627fe1d68a83076772b3551df4';
-            const params = new URLSearchParams({
+            // Create the widget script
+            const widgetScript = document.createElement('script');
+            widgetScript.id = 'retell-widget';
+            widgetScript.src = 'https://dashboard.retellai.com/retell-widget.js';
+            widgetScript.type = 'module';
+            widgetScript.setAttribute('data-public-key', 'key_f1b1aa7616495ba07890ef19fcea');
+            widgetScript.setAttribute('data-agent-id', 'agent_627fe1d68a83076772b3551df4');
+            widgetScript.setAttribute('data-agent-version', '6');
+            widgetScript.setAttribute('data-title', `Chat with ${customerName}`);
+            widgetScript.setAttribute('data-color', '#075e54');
+            widgetScript.setAttribute('data-auto-open', 'true');
+            widgetScript.setAttribute('data-dynamic', JSON.stringify({
                 name: customerName,
                 greeting: 'Hola',
                 amount: debtAmount,
                 due_date: dueDate,
                 farewell: 'que tengas un buen día'
-            });
+            }));
 
-            const chatUrl = `${baseUrl}${agentId}?${params.toString()}`;
+            document.head.appendChild(widgetScript);
 
-            // Create iframe for embedded chat
-            chatBody.innerHTML = `
-                <iframe
-                    src="${chatUrl}"
-                    style="width: 100%; height: 100%; border: none; background: white;"
-                    allow="microphone; camera; autoplay"
-                ></iframe>
-            `;
+            // Auto-click the widget button after it loads
+            let attempts = 0;
+            const checkInterval = setInterval(() => {
+                attempts++;
+                const widgetButton = document.querySelector('#retell-widget-root button');
+                if (widgetButton) {
+                    widgetButton.click();
+                    clearInterval(checkInterval);
+
+                    // Show chat in fullscreen-like mode
+                    setTimeout(() => {
+                        const widgetRoot = document.getElementById('retell-widget-root');
+                        if (widgetRoot) {
+                            const chatContainer = widgetRoot.querySelector('div[style*="position: fixed"]');
+                            if (chatContainer) {
+                                // Make it fill the chat area
+                                chatContainer.style.position = 'fixed';
+                                chatContainer.style.bottom = '20px';
+                                chatContainer.style.right = '20px';
+                                chatContainer.style.width = '600px';
+                                chatContainer.style.height = '500px';
+                                chatContainer.style.maxWidth = '90vw';
+                                chatContainer.style.maxHeight = '80vh';
+                            }
+                        }
+                    }, 500);
+                }
+                if (attempts > 30) clearInterval(checkInterval); // Stop after 3 seconds
+            }, 100);
         }
     </script>
 </body>
