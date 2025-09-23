@@ -25,21 +25,20 @@ module.exports = async (req, res) => {
     // Create a web call with dynamic variables
     const webCallResponse = await retellClient.call.createWebCall({
       agent_id: 'agent_627fe1d68a83076772b3551df4',
-      metadata: {
-        customer_name: customerName,
-        debt_amount: debtAmount,
-        due_date: dueDate,
-        bank: 'Banco de Córdoba'
-      },
-      custom_data: {
+      retell_llm_dynamic_variables: {
         name: customerName,
         greeting: 'Hola',
         amount: debtAmount,
         customer_name: customerName,
         debt_amount: debtAmount,
         due_date: dueDate,
-        bank: 'Banco de Córdoba',
-        agent_type: 'Collections'
+        bank: 'Banco de Córdoba'
+      },
+      metadata: {
+        customer_name: customerName,
+        debt_amount: debtAmount,
+        due_date: dueDate,
+        bank: 'Banco de Córdoba'
       }
     });
 

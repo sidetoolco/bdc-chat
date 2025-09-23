@@ -29,10 +29,14 @@
     },
     {
       "src": "/",
-      "dest": "/custom-chat.html"
+      "dest": "/chat-embedded.html"
     },
     {
       "src": "/index",
+      "dest": "/chat-embedded.html"
+    },
+    {
+      "src": "/custom",
       "dest": "/custom-chat.html"
     },
     {
