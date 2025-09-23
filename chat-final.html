@@ -668,10 +668,11 @@
             // Create widget script with dynamic data - it will be hidden by CSS
             const widgetScript = document.createElement('script');
             widgetScript.id = 'retell-widget';
-            widgetScript.src = 'https://dashboard.retellai.com/retell-widget-v5.js';
+            widgetScript.src = 'https://dashboard.retellai.com/retell-widget.js';
             widgetScript.type = 'module';
             widgetScript.setAttribute('data-public-key', 'key_f1b1aa7616495ba07890ef19fcea');
             widgetScript.setAttribute('data-agent-id', 'agent_627fe1d68a83076772b3551df4');
+            widgetScript.setAttribute('data-agent-version', '5');
             widgetScript.setAttribute('data-dynamic', JSON.stringify({
                 name: customerName,
                 greeting: 'Hola',
