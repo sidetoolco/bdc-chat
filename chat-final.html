@@ -373,8 +373,8 @@
             <header class="top-header">
                 <h1 class="header-title">Sistema de Cobranzas</h1>
                 <div class="header-actions">
-                    <button class="header-btn">Exportar</button>
-                    <button class="header-btn primary">Nueva Sesión</button>
+                    <button class="header-btn" id="exportBtn">Exportar</button>
+                    <button class="header-btn primary" id="resetBtn">Nueva Sesión</button>
                 </div>
             </header>
 
@@ -475,7 +475,65 @@
                     this.value = parseFloat(this.value).toFixed(2);
                 }
             });
+
+            // Reset button functionality
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                // Check if a conversation is active
+                const widgetRoot = document.getElementById('retell-widget-root');
+                const retellContainer = document.getElementById('retell-container');
+
+                if (widgetRoot || (retellContainer && retellContainer.style.display === 'block')) {
+                    // Conversation is active, show confirmation
+                    if (confirm('¿Está seguro que desea terminar la conversación actual y comenzar una nueva?')) {
+                        resetConversation();
+                    }
+                } else {
+                    // No active conversation, just reset
+                    resetConversation();
+                }
+            });
         });
+
+        function resetConversation() {
+            // Remove existing Retell widget
+            const existingScript = document.getElementById('retell-widget');
+            if (existingScript) {
+                existingScript.remove();
+            }
+
+            // Remove widget root if exists
+            const widgetRoot = document.getElementById('retell-widget-root');
+            if (widgetRoot) {
+                widgetRoot.remove();
+            }
+
+            // Reset form
+            document.getElementById('customerForm').reset();
+
+            // Reset date to 30 days from now
+            const defaultDate = new Date();
+            defaultDate.setDate(defaultDate.getDate() + 30);
+            document.getElementById('dueDate').value = defaultDate.toISOString().split('T')[0];
+
+            // Enable form inputs
+            const inputs = document.querySelectorAll('.form-input, .form-button');
+            inputs.forEach(input => input.disabled = false);
+
+            // Reset chat display
+            document.getElementById('chatPlaceholder').style.display = 'block';
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('retell-container').style.display = 'none';
+
+            // Hide success message
+            const successMsg = document.getElementById('successMessage');
+            successMsg.style.display = 'none';
+            successMsg.style.opacity = '1';
+
+            // Clear any intervals
+            if (window.retellIntervalId) {
+                clearInterval(window.retellIntervalId);
+            }
+        }
 
         // Handle form submission
         document.getElementById('customerForm').addEventListener('submit', function(e) {
@@ -623,7 +681,7 @@
 
                     // Try multiple times to ensure it's hidden
                     hidePoweredBy();
-                    setInterval(hidePoweredBy, 1000);
+                    window.retellIntervalId = setInterval(hidePoweredBy, 1000);
                 }, 1000);
             };
 
