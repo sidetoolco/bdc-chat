@@ -836,28 +836,64 @@
 
             document.body.appendChild(script);
 
-            // Auto-click widget after load
-            script.onload = () => {
-                setTimeout(() => {
-                    const button = document.querySelector('#retell-widget-root button');
-                    if (button) {
-                        button.click();
+            // Auto-open widget with multiple attempts
+            let openAttempts = 0;
+            const maxAttempts = 20;
 
-                        // Try to maximize the chat window
-                        setTimeout(() => {
-                            const chatWindow = document.querySelector('#retell-widget-root > div');
-                            if (chatWindow && chatWindow.style) {
-                                chatWindow.style.width = '600px';
-                                chatWindow.style.height = '700px';
-                                chatWindow.style.maxWidth = '95vw';
-                                chatWindow.style.maxHeight = '90vh';
-                                chatWindow.style.right = '20px';
-                                chatWindow.style.bottom = '20px';
+            const tryOpenWidget = () => {
+                openAttempts++;
+
+                // Look for the widget button
+                const button = document.querySelector('#retell-widget-root button');
+
+                if (button) {
+                    console.log('Widget button found, clicking...');
+                    button.click();
+
+                    // After clicking, try to maximize the window
+                    setTimeout(() => {
+                        const chatWindow = document.querySelector('#retell-widget-root > div[style*="position"]');
+                        if (chatWindow && chatWindow.style) {
+                            chatWindow.style.width = '600px';
+                            chatWindow.style.height = '700px';
+                            chatWindow.style.maxWidth = '95vw';
+                            chatWindow.style.maxHeight = '90vh';
+                            chatWindow.style.right = '20px';
+                            chatWindow.style.bottom = '20px';
+                            chatWindow.style.zIndex = '9999';
+                        }
+
+                        // Also try to click any inner iframe button if needed
+                        const iframe = document.querySelector('#retell-widget-root iframe');
+                        if (iframe) {
+                            try {
+                                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                                const iframeButton = iframeDoc.querySelector('button');
+                                if (iframeButton) {
+                                    iframeButton.click();
+                                }
+                            } catch (e) {
+                                // Cross-origin, can't access iframe
                             }
-                        }, 500);
-                    }
-                }, 500);
+                        }
+                    }, 500);
+
+                } else if (openAttempts < maxAttempts) {
+                    // Keep trying if button not found yet
+                    setTimeout(tryOpenWidget, 200);
+                } else {
+                    console.log('Widget button not found after maximum attempts');
+                }
             };
+
+            // Start trying after script loads
+            script.onload = () => {
+                console.log('Retell widget script loaded');
+                setTimeout(tryOpenWidget, 300);
+            };
+
+            // Also try immediately in case script loads very fast
+            setTimeout(tryOpenWidget, 1000);
         }
     </script>
 </body>
