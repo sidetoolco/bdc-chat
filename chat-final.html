@@ -300,6 +300,21 @@
             display: none;
         }
 
+        /* Hide Powered by Retell */
+        #retell-widget-root [href*="retellai.com"],
+        #retell-widget-root a[target="_blank"],
+        #retell-widget-root div:has(> a[href*="retellai.com"]),
+        [class*="powered"],
+        [class*="Powered"],
+        [id*="powered"],
+        [id*="Powered"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            pointer-events: none !important;
+        }
+
         .partner-logo {
             position: absolute;
             bottom: 24px;
@@ -563,6 +578,53 @@
             script.onload = () => {
                 console.log('Retell widget loaded');
                 setTimeout(tryOpenWidget, 300);
+
+                // Hide Powered by Retell
+                setTimeout(() => {
+                    const hidePoweredBy = () => {
+                        const selectors = [
+                            'a[href*="retellai.com"]',
+                            'a[target="_blank"]',
+                            '[class*="powered"]',
+                            '[class*="Powered"]',
+                            'div:has(a[href*="retellai.com"])'
+                        ];
+
+                        selectors.forEach(selector => {
+                            document.querySelectorAll(selector).forEach(el => {
+                                if (el.textContent && el.textContent.toLowerCase().includes('powered')) {
+                                    el.style.display = 'none';
+                                    el.style.visibility = 'hidden';
+                                    if (el.parentElement) {
+                                        el.parentElement.style.display = 'none';
+                                    }
+                                }
+                            });
+                        });
+
+                        // Also check inside iframes
+                        const iframe = document.querySelector('#retell-widget-root iframe');
+                        if (iframe) {
+                            try {
+                                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                                selectors.forEach(selector => {
+                                    iframeDoc.querySelectorAll(selector).forEach(el => {
+                                        if (el.textContent && el.textContent.toLowerCase().includes('powered')) {
+                                            el.style.display = 'none';
+                                            el.style.visibility = 'hidden';
+                                        }
+                                    });
+                                });
+                            } catch (e) {
+                                // Cross-origin, can't access iframe
+                            }
+                        }
+                    };
+
+                    // Try multiple times to ensure it's hidden
+                    hidePoweredBy();
+                    setInterval(hidePoweredBy, 1000);
+                }, 1000);
             };
 
             setTimeout(tryOpenWidget, 1000);
