@@ -7,20 +7,8 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="shortcut icon" href="favicon.svg" type="image/svg+xml">
 
-    <!-- Retell Chat Widget Script -->
-    <script
-        id="retell-widget"
-        src="https://dashboard.retellai.com/retell-widget.js"
-        type="module"
-        data-public-key="key_f1b1aa7616495ba07890ef19fcea"
-        data-agent-id="agent_627fe1d68a83076772b3551df4"
-        data-title="Kleva Collections Assistant"
-        data-logo-url="kleva-logo.webp"
-        data-color="#9333ea"
-        data-bot-name="Kleva Bot"
-        data-show-ai-popup="false"
-        data-auto-open="false"
-    ></script>
+    <!-- Retell Chat Widget Script - will be dynamically initialized -->
+    <script id="retell-widget-placeholder"></script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -699,10 +687,42 @@
                 e.preventDefault();
 
                 // Get form data
-                const formData = new FormData(form);
                 const customerName = form.querySelector('input[type="text"]').value;
                 const debtAmount = form.querySelector('input[type="number"]').value;
                 const dueDate = form.querySelector('input[type="date"]').value;
+
+                // Create dynamic data object
+                const dynamicData = {
+                    customer_name: customerName,
+                    debt_amount: debtAmount,
+                    due_date: dueDate,
+                    bank: "Banco de Córdoba",
+                    agent_type: "Collections"
+                };
+
+                // Remove existing widget if any
+                const existingWidget = document.getElementById('retell-widget');
+                if (existingWidget) {
+                    existingWidget.remove();
+                }
+
+                // Create new widget script with dynamic data
+                const widgetScript = document.createElement('script');
+                widgetScript.id = 'retell-widget';
+                widgetScript.src = 'https://dashboard.retellai.com/retell-widget.js';
+                widgetScript.type = 'module';
+                widgetScript.setAttribute('data-public-key', 'key_f1b1aa7616495ba07890ef19fcea');
+                widgetScript.setAttribute('data-agent-id', 'agent_627fe1d68a83076772b3551df4');
+                widgetScript.setAttribute('data-title', 'Kleva Collections - ' + customerName);
+                widgetScript.setAttribute('data-logo-url', 'kleva-logo.webp');
+                widgetScript.setAttribute('data-color', '#9333ea');
+                widgetScript.setAttribute('data-bot-name', 'Kleva Collections Bot');
+                widgetScript.setAttribute('data-show-ai-popup', 'false');
+                widgetScript.setAttribute('data-auto-open', 'true');
+                widgetScript.setAttribute('data-dynamic', JSON.stringify(dynamicData));
+
+                // Insert the new widget script
+                document.head.appendChild(widgetScript);
 
                 // Enable chat inputs
                 chatInput.disabled = false;
@@ -721,44 +741,14 @@
                         </div>
                         <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; max-width: 70%;">
                             <p style="font-size: 0.875rem; color: #4b5563;">
-                                <strong>Kleva Assistant:</strong> Initiating collections conversation with Retell AI...
+                                <strong>Kleva Assistant:</strong> Starting collections chat with customer context...
                             </p>
                         </div>
                     </div>
                 `;
 
-                // Trigger Retell widget programmatically
-                setTimeout(() => {
-                    // Find and click the hidden Retell button
-                    const retellButton = document.querySelector('#retell-widget-button');
-                    if (retellButton) {
-                        // Force show and click
-                        retellButton.style.display = 'block';
-                        retellButton.style.visibility = 'visible';
-                        retellButton.style.opacity = '1';
-                        retellButton.click();
-                        // Hide again immediately
-                        setTimeout(() => {
-                            retellButton.style.display = 'none';
-                            retellButton.style.visibility = 'hidden';
-                            retellButton.style.opacity = '0';
-                        }, 100);
-                    } else {
-                        // If widget isn't loaded yet, try alternative method
-                        if (window.RetellWebClient) {
-                            window.RetellWebClient.open();
-                        } else {
-                            console.log('Retell widget is loading, please try again...');
-                        }
-                    }
-                }, 500);
-
-                // Store customer data for context (optional - for future use)
-                window.customerContext = {
-                    name: customerName,
-                    debtAmount: debtAmount,
-                    dueDate: dueDate
-                };
+                // Store customer data for context
+                window.customerContext = dynamicData;
             });
 
             // Handle chat send button click
