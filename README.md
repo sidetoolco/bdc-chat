@@ -1,64 +1,54 @@
-# Kleva Collections Chat Interface
+# Kleva Collections Chat - Banco de Córdoba
 
-A modern, embedded chat interface for collections management powered by AI assistance.
+WhatsApp-style collections chat interface powered by Retell AI.
+
+## Live Demo
+
+Visit: https://sidetoolco.github.io/bdc-chat/
 
 ## Features
 
-- 🎯 Clean, embedded chat interface (no floating widgets)
-- 💜 Custom purple-themed design matching Kleva brand
-- 📝 Customer data form integration
-- 💬 Real-time chat functionality
-- 🎨 Responsive design with sidebar navigation
+- 💬 WhatsApp-style UI for familiar user experience
+- 🤖 Integrated Retell AI agent for collections conversations
+- 📝 Dynamic customer data input (name, debt amount, due date)
+- 🏦 Banco de Córdoba branding
+- 📱 Mobile responsive design
 
-## Tech Stack
+## Files
 
-- Pure HTML/CSS/JavaScript
-- Custom SVG logo and favicon
-- Quicksand font family
-- Mobile responsive design
+- `chat-final.html` - Main chat interface with WhatsApp styling
+- `index.html` - Redirect page to chat-final.html
+- `kleva-logo.webp` - Kleva logo
+- `bancor-verde.png` - Banco de Córdoba logo
+- `favicon.svg` - Site favicon
 
-## Setup
+## Configuration
 
-1. Clone the repository:
+The chat uses Retell AI agent v5:
+- Agent ID: `agent_627fe1d68a83076772b3551df4`
+- Version: 5
+- Public Key: `key_f1b1aa7616495ba07890ef19fcea`
+
+## Usage
+
+1. Open the application at https://sidetoolco.github.io/bdc-chat/
+2. Fill in customer data:
+   - Full Name
+   - Debt Amount
+   - Due Date
+3. Click "Initialize Agent" to start the conversation
+
+The interface simulates a WhatsApp conversation while the Retell AI agent handles the actual collections dialogue in the background.
+
+## Local Development
+
 ```bash
-git clone https://github.com/sidetoolco/retell-chat.git
-cd retell-chat
-```
-
-2. Start a local server:
-```bash
+git clone https://github.com/sidetoolco/bdc-chat.git
+cd bdc-chat
 python3 -m http.server 8080
 ```
 
-3. Open in browser:
-```
-http://localhost:8080
-```
-
-## Structure
-
-```
-retell-chat/
-├── index.html          # Main application file
-├── kleva-logo.svg      # Custom Kleva logo
-├── favicon.svg         # Site favicon
-└── README.md          # Documentation
-```
-
-## Interface Components
-
-- **Sidebar**: Minimal navigation with user profile
-- **Customer Form**: Collects customer data (name, debt amount, due date)
-- **Chat Container**: Embedded chat interface with message history
-- **Responsive Layout**: Adapts to mobile and desktop screens
-
-## Customization
-
-The interface uses a purple color scheme (#9333ea) throughout. Key styling variables:
-- Primary color: `#9333ea`
-- Hover color: `#7e22ce`
-- Background: `#f9fafb`
-- Text: `#111827`
+Then open http://localhost:8080 in your browser.
 
 ## License
 
