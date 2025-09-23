@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kleva - Collections Chat (SDK Version)</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', system-ui, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+            background: #f9fafb;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 14rem;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .logo-container {
+            padding: 0.5rem 1rem;
+        }
+
+        .logo-container img {
+            height: 30px;
+            width: auto;
+        }
+
+        /* Content Area */
+        .content-area {
+            margin-left: 14rem;
+            flex: 1;
+            background: #f9fafb;
+            min-height: 100vh;
+        }
+
+        .content-wrapper {
+            margin: 1.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            min-height: calc(100vh - 3rem);
+        }
+
+        .content-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 400;
+            color: #111827;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            height: fit-content;
+        }
+
+        .form-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .required {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            font-size: 0.875rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #9333ea;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: #9333ea;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.625rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover {
+            background: #7e22ce;
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            width: 100%;
+            height: 650px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #9333ea, #7e22ce);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .chat-avatar svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .chat-body {
+            flex: 1;
+            position: relative;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .pulse-animation {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        .pulse-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #9333ea;
+            border-radius: 50%;
+            margin: 0 4px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .pulse-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .pulse-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .content-area {
+                margin-left: 0;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="kleva-logo.webp" alt="Kleva">
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="content-wrapper">
+                <header class="content-header">
+                    <h1 class="page-title">Playground - Collections (SDK Version)</h1>
+                </header>
+                <main class="main-content">
+                    <div class="form-grid">
+                        <!-- Customer Data Form -->
+                        <div class="form-card">
+                            <h3>Customer Data</h3>
+                            <form id="customerForm">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Full Name<span class="required">*</span>
+                                    </label>
+                                    <input type="text" class="form-input" id="customerName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Debt Amount<span class="required">*</span>
+                                    </label>
+                                    <input type="number" class="form-input" id="debtAmount" step="0.01" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Due Date<span class="required">*</span>
+                                    </label>
+                                    <input type="date" class="form-input" id="dueDate" required>
+                                </div>
+                                <button type="submit" class="btn-primary">Start Chat</button>
+                            </form>
+                        </div>
+
+                        <!-- Chat Container -->
+                        <div class="chat-container">
+                            <div class="chat-header">
+                                <div class="chat-avatar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 style="font-size: 1rem; font-weight: 600;">Kleva Collections Assistant</h3>
+                                    <p style="font-size: 0.75rem; color: #6b7280;">Banco de Córdoba</p>
+                                </div>
+                            </div>
+                            <div class="chat-body" id="chatBody">
+                                <div class="loading-state">
+                                    <div class="pulse-animation">
+                                        <span class="pulse-dot"></span>
+                                        <span class="pulse-dot"></span>
+                                        <span class="pulse-dot"></span>
+                                    </div>
+                                    <p style="color: #6b7280;">Fill in customer data to start</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('customerForm');
+            const dateInput = document.getElementById('dueDate');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.setAttribute('min', today);
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const customerName = document.getElementById('customerName').value;
+                const debtAmount = document.getElementById('debtAmount').value;
+                const dueDate = document.getElementById('dueDate').value;
+
+                const chatBody = document.getElementById('chatBody');
+                chatBody.innerHTML = `
+                    <div class="loading-state">
+                        <div class="pulse-animation">
+                            <span class="pulse-dot"></span>
+                            <span class="pulse-dot"></span>
+                            <span class="pulse-dot"></span>
+                        </div>
+                        <p style="color: #9333ea; font-weight: 600;">Connecting to Kleva Assistant...</p>
+                    </div>
+                `;
+
+                try {
+                    // Call backend to create web call
+                    const response = await fetch('http://localhost:3000/api/create-web-call', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            customerName,
+                            debtAmount,
+                            dueDate
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success && data.web_call_link) {
+                        // Embed the web call in an iframe
+                        chatBody.innerHTML = `
+                            <iframe
+                                class="chat-iframe"
+                                src="${data.web_call_link}"
+                                allow="microphone; camera; autoplay"
+                            ></iframe>
+                        `;
+                    } else {
+                        // Fallback to widget approach
+                        loadRetellWidget(customerName, debtAmount, dueDate);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    // Fallback to widget approach
+                    loadRetellWidget(customerName, debtAmount, dueDate);
+                }
+            });
+
+            function loadRetellWidget(customerName, debtAmount, dueDate) {
+                // Remove existing widget
+                const existingWidget = document.getElementById('retell-widget');
+                if (existingWidget) existingWidget.remove();
+
+                // Create widget with dynamic data
+                const widgetScript = document.createElement('script');
+                widgetScript.id = 'retell-widget';
+                widgetScript.src = 'https://dashboard.retellai.com/retell-widget.js';
+                widgetScript.type = 'module';
+                widgetScript.setAttribute('data-public-key', 'key_f1b1aa7616495ba07890ef19fcea');
+                widgetScript.setAttribute('data-agent-id', 'agent_627fe1d68a83076772b3551df4');
+                widgetScript.setAttribute('data-title', `Kleva - ${customerName}`);
+                widgetScript.setAttribute('data-color', '#9333ea');
+                widgetScript.setAttribute('data-auto-open', 'true');
+                widgetScript.setAttribute('data-dynamic', JSON.stringify({
+                    name: customerName,
+                    greeting: 'Hola',
+                    debt_amount: debtAmount,
+                    due_date: dueDate
+                }));
+
+                document.head.appendChild(widgetScript);
+
+                document.getElementById('chatBody').innerHTML = `
+                    <div class="loading-state">
+                        <p style="color: #7e22ce;">Chat widget loaded. Opening conversation...</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
