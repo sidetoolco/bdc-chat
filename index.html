@@ -629,7 +629,7 @@
                             </div>
 
                             <!-- Chat Container -->
-                            <div class="chat-container">
+                            <div class="chat-container" id="chatContainer">
                                 <div class="chat-header">
                                     <div class="chat-avatar">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -641,26 +641,20 @@
                                         <p>Banco de Córdoba - AI Agent</p>
                                     </div>
                                 </div>
-                                <div class="chat-messages" id="chatMessages">
-                                    <div style="text-align: center; padding: 3rem; color: #6b7280;">
-                                        <div class="pulse-animation" style="width: 120px; height: 120px; margin: 0 auto 2rem;">
-                                            <span class="pulse-ring" style="width: 96px; height: 96px;"></span>
-                                            <span class="pulse-ring" style="width: 72px; height: 72px;"></span>
-                                            <span class="pulse-ring" style="width: 48px; height: 48px;"></span>
-                                            <span class="pulse-center" style="width: 36px; height: 36px;"></span>
+                                <!-- This will be replaced with Retell iframe after form submission -->
+                                <div id="retellChatArea" style="flex: 1; display: flex; flex-direction: column;">
+                                    <div class="chat-messages" id="chatMessages">
+                                        <div style="text-align: center; padding: 3rem; color: #6b7280;">
+                                            <div class="pulse-animation" style="width: 120px; height: 120px; margin: 0 auto 2rem;">
+                                                <span class="pulse-ring" style="width: 96px; height: 96px;"></span>
+                                                <span class="pulse-ring" style="width: 72px; height: 72px;"></span>
+                                                <span class="pulse-ring" style="width: 48px; height: 48px;"></span>
+                                                <span class="pulse-center" style="width: 36px; height: 36px;"></span>
+                                            </div>
+                                            <p>Welcome to Kleva Collections Chat</p>
+                                            <p style="font-size: 0.875rem; margin-top: 0.5rem;">Fill in the customer data to start the conversation</p>
                                         </div>
-                                        <p>Welcome to Kleva Collections Chat</p>
-                                        <p style="font-size: 0.875rem; margin-top: 0.5rem;">Fill in the customer data to start the conversation</p>
                                     </div>
-                                </div>
-                                <div class="chat-input-container">
-                                    <input type="text" class="chat-input" placeholder="Type your message..." disabled id="chatInput">
-                                    <button class="chat-send-btn" disabled id="chatSendBtn">
-                                        Send
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                        </svg>
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -679,9 +673,6 @@
 
             // Handle form submission
             const form = document.getElementById('customerForm');
-            const chatInput = document.getElementById('chatInput');
-            const chatSendBtn = document.getElementById('chatSendBtn');
-            const chatMessages = document.getElementById('chatMessages');
 
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -691,8 +682,10 @@
                 const debtAmount = form.querySelector('input[type="number"]').value;
                 const dueDate = form.querySelector('input[type="date"]').value;
 
-                // Create dynamic data object
+                // Create dynamic data object with proper variable names for the agent
                 const dynamicData = {
+                    name: customerName,  // Changed to match {{name}} variable
+                    greeting: "Hola",    // Added greeting variable
                     customer_name: customerName,
                     debt_amount: debtAmount,
                     due_date: dueDate,
@@ -700,98 +693,35 @@
                     agent_type: "Collections"
                 };
 
-                // Remove existing widget if any
-                const existingWidget = document.getElementById('retell-widget');
-                if (existingWidget) {
-                    existingWidget.remove();
-                }
+                // Build the Retell chat URL with parameters
+                const retellBaseUrl = 'https://chat.retellai.com/chat';
+                const params = new URLSearchParams({
+                    publicKey: 'key_f1b1aa7616495ba07890ef19fcea',
+                    agentId: 'agent_627fe1d68a83076772b3551df4',
+                    dynamic: JSON.stringify(dynamicData)
+                });
 
-                // Create new widget script with dynamic data
-                const widgetScript = document.createElement('script');
-                widgetScript.id = 'retell-widget';
-                widgetScript.src = 'https://dashboard.retellai.com/retell-widget.js';
-                widgetScript.type = 'module';
-                widgetScript.setAttribute('data-public-key', 'key_f1b1aa7616495ba07890ef19fcea');
-                widgetScript.setAttribute('data-agent-id', 'agent_627fe1d68a83076772b3551df4');
-                widgetScript.setAttribute('data-title', 'Kleva Collections - ' + customerName);
-                widgetScript.setAttribute('data-logo-url', 'kleva-logo.webp');
-                widgetScript.setAttribute('data-color', '#9333ea');
-                widgetScript.setAttribute('data-bot-name', 'Kleva Collections Bot');
-                widgetScript.setAttribute('data-show-ai-popup', 'false');
-                widgetScript.setAttribute('data-auto-open', 'true');
-                widgetScript.setAttribute('data-dynamic', JSON.stringify(dynamicData));
-
-                // Insert the new widget script
-                document.head.appendChild(widgetScript);
-
-                // Enable chat inputs
-                chatInput.disabled = false;
-                chatSendBtn.disabled = false;
-
-                // Update chat messages area with customer context
-                chatMessages.innerHTML = `
-                    <div style="padding: 1rem;">
-                        <div style="background: #e9d5ff; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
-                            <p style="font-size: 0.75rem; color: #7e22ce;">
-                                <strong>Customer Info:</strong><br>
-                                Name: ${customerName}<br>
-                                Debt Amount: $${debtAmount}<br>
-                                Due Date: ${dueDate}
-                            </p>
-                        </div>
-                        <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; max-width: 70%;">
-                            <p style="font-size: 0.875rem; color: #4b5563;">
-                                <strong>Kleva Assistant:</strong> Starting collections chat with customer context...
-                            </p>
-                        </div>
-                    </div>
+                // Replace the chat area with an iframe
+                const chatArea = document.getElementById('retellChatArea');
+                chatArea.innerHTML = `
+                    <iframe
+                        id="retellChatIframe"
+                        src="${retellBaseUrl}?${params.toString()}"
+                        style="width: 100%; height: 100%; border: none; border-radius: 0 0 12px 12px;"
+                        allow="microphone; camera"
+                    ></iframe>
                 `;
 
                 // Store customer data for context
                 window.customerContext = dynamicData;
+
+                // Optional: Show loading state
+                const iframe = document.getElementById('retellChatIframe');
+                iframe.onload = function() {
+                    console.log('Retell chat loaded successfully');
+                };
             });
 
-            // Handle chat send button click
-            chatSendBtn.addEventListener('click', function() {
-                const message = chatInput.value.trim();
-                if (message) {
-                    // Add user message to chat
-                    const userMessageHtml = `
-                        <div style="background: #9333ea; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; max-width: 70%; margin-left: auto; color: white;">
-                            <p style="font-size: 0.875rem;">
-                                <strong>You:</strong> ${message}
-                            </p>
-                        </div>
-                    `;
-                    chatMessages.innerHTML += userMessageHtml;
-
-                    // Clear input
-                    chatInput.value = '';
-
-                    // Scroll to bottom
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-
-                    // Simulate AI response
-                    setTimeout(() => {
-                        const aiResponseHtml = `
-                            <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; max-width: 70%;">
-                                <p style="font-size: 0.875rem; color: #4b5563;">
-                                    <strong>Kleva Assistant:</strong> I understand your request. Let me help you with the collections process.
-                                </p>
-                            </div>
-                        `;
-                        chatMessages.innerHTML += aiResponseHtml;
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }, 1000);
-                }
-            });
-
-            // Handle enter key in chat input
-            chatInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !chatInput.disabled) {
-                    chatSendBtn.click();
-                }
-            });
         });
     </script>
 </body>
