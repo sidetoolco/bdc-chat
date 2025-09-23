@@ -693,33 +693,64 @@
                     agent_type: "Collections"
                 };
 
-                // Build the Retell chat URL with parameters
-                const retellBaseUrl = 'https://chat.retellai.com/chat';
-                const params = new URLSearchParams({
-                    publicKey: 'key_f1b1aa7616495ba07890ef19fcea',
-                    agentId: 'agent_627fe1d68a83076772b3551df4',
-                    dynamic: JSON.stringify(dynamicData)
-                });
+                // Remove any existing widget
+                const existingWidget = document.getElementById('retell-widget');
+                if (existingWidget) {
+                    existingWidget.remove();
+                }
 
-                // Replace the chat area with an iframe
+                // Remove any existing widget buttons
+                const existingButton = document.getElementById('retell-widget-button');
+                if (existingButton) {
+                    existingButton.remove();
+                }
+
+                // Create new widget script with dynamic data
+                const widgetScript = document.createElement('script');
+                widgetScript.id = 'retell-widget';
+                widgetScript.src = 'https://dashboard.retellai.com/retell-widget.js';
+                widgetScript.type = 'module';
+                widgetScript.setAttribute('data-public-key', 'key_f1b1aa7616495ba07890ef19fcea');
+                widgetScript.setAttribute('data-agent-id', 'agent_627fe1d68a83076772b3551df4');
+                widgetScript.setAttribute('data-title', 'Kleva Collections - ' + customerName);
+                widgetScript.setAttribute('data-logo-url', 'kleva-logo.webp');
+                widgetScript.setAttribute('data-color', '#9333ea');
+                widgetScript.setAttribute('data-bot-name', 'Kleva Collections Bot');
+                widgetScript.setAttribute('data-show-ai-popup', 'false');
+                widgetScript.setAttribute('data-auto-open', 'true');
+                widgetScript.setAttribute('data-dynamic', JSON.stringify(dynamicData));
+
+                // Insert the new widget script
+                document.head.appendChild(widgetScript);
+
+                // Update the chat area to show loading
                 const chatArea = document.getElementById('retellChatArea');
                 chatArea.innerHTML = `
-                    <iframe
-                        id="retellChatIframe"
-                        src="${retellBaseUrl}?${params.toString()}"
-                        style="width: 100%; height: 100%; border: none; border-radius: 0 0 12px 12px;"
-                        allow="microphone; camera"
-                    ></iframe>
+                    <div style="padding: 2rem; text-align: center;">
+                        <div class="pulse-animation" style="width: 80px; height: 80px; margin: 0 auto 1rem;">
+                            <span class="pulse-ring" style="width: 64px; height: 64px;"></span>
+                            <span class="pulse-ring" style="width: 48px; height: 48px;"></span>
+                            <span class="pulse-ring" style="width: 32px; height: 32px;"></span>
+                            <span class="pulse-center" style="width: 24px; height: 24px;"></span>
+                        </div>
+                        <p style="color: #7e22ce; font-weight: 600;">Loading Kleva Collections Chat...</p>
+                        <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;">
+                            Customer: ${customerName}<br>
+                            Amount: $${debtAmount}
+                        </p>
+                    </div>
                 `;
 
                 // Store customer data for context
                 window.customerContext = dynamicData;
 
-                // Optional: Show loading state
-                const iframe = document.getElementById('retellChatIframe');
-                iframe.onload = function() {
-                    console.log('Retell chat loaded successfully');
-                };
+                // Wait for widget to load and then trigger it
+                setTimeout(() => {
+                    const retellButton = document.querySelector('#retell-widget-button');
+                    if (retellButton) {
+                        retellButton.click();
+                    }
+                }, 1500);
             });
 
         });
