@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Kleva Collections Chat - WhatsApp</title>
-    <!-- Updated: 2024-09-23 10:50 - Widget auto-open v2 -->
+    <title>Kleva Collections Chat</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
     <!-- Google Fonts -->
@@ -156,13 +155,13 @@
 
         .form-input:focus {
             outline: none;
-            border-color: #25d366;
-            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+            border-color: #9333ea;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
         }
 
         .btn-primary {
             width: 100%;
-            background: #25d366;
+            background: #9333ea;
             color: white;
             font-size: 0.875rem;
             font-weight: 500;
@@ -175,7 +174,7 @@
         }
 
         .btn-primary:hover {
-            background: #128c7e;
+            background: #7e22ce;
         }
 
         .btn-primary:disabled {
@@ -183,318 +182,100 @@
             cursor: not-allowed;
         }
 
-        /* WhatsApp Style Chat Container */
-        .whatsapp-container {
+        /* Chat Container */
+        .chat-container {
             width: 100%;
             height: 650px;
-            background: linear-gradient(180deg, #dddbd1 0%, #d2dbdc 100%);
-            border-radius: 8px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        /* WhatsApp Background Pattern */
-        .whatsapp-container::before {
-            content: '';
-            position: absolute;
+        .chat-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        /* Full screen chat when active */
+        .chat-active {
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            opacity: 0.4;
-            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='a' patternUnits='userSpaceOnUse' width='40' height='40'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h8v2H0v-2zm10 0h8v2h-8v-2z' fill='%23ffffff' fill-opacity='0.1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23a)'/%3E%3C/svg%3E");
-            z-index: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+            border-radius: 0;
         }
 
-        .whatsapp-header {
+        .chat-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.625rem 1rem;
-            background: #075e54;
+            padding: 1rem 1.5rem;
+            background: #9333ea;
             color: white;
-            position: relative;
-            z-index: 1;
         }
 
-        .whatsapp-header-left {
+        .chat-header-info {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
         }
 
-        .back-arrow {
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            opacity: 0.8;
-        }
-
-        .whatsapp-avatar {
-            width: 36px;
-            height: 36px;
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
             background: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
             padding: 4px;
         }
 
-        .whatsapp-avatar img {
+        .chat-avatar img {
             width: 100%;
             height: 100%;
             object-fit: contain;
         }
 
-        .whatsapp-contact-info {
-            flex: 1;
+        .chat-title {
+            font-size: 1.125rem;
+            font-weight: 600;
         }
 
-        .whatsapp-contact-name {
-            font-size: 1rem;
-            font-weight: 500;
-            margin-bottom: 0.125rem;
-        }
-
-        .whatsapp-status {
-            font-size: 0.75rem;
+        .chat-subtitle {
+            font-size: 0.875rem;
             opacity: 0.9;
         }
 
-        .whatsapp-header-right {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .header-icon {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
-
-        .header-icon:hover {
-            opacity: 1;
-        }
-
-        .whatsapp-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* WhatsApp Message Styles */
-        .whatsapp-date {
-            text-align: center;
-            margin: 1rem 0;
-        }
-
-        .whatsapp-date span {
-            background: #e1f3fb;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            color: #667781;
-        }
-
-        .whatsapp-message {
-            margin-bottom: 0.5rem;
-            display: flex;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .whatsapp-message.sent {
-            justify-content: flex-end;
-        }
-
-        .whatsapp-message.received {
-            justify-content: flex-start;
-        }
-
-        .whatsapp-bubble {
-            max-width: 65%;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.5rem;
-            position: relative;
-            box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
-        }
-
-        .whatsapp-message.sent .whatsapp-bubble {
-            background: #dcf8c6;
-            border-top-right-radius: 0;
-        }
-
-        .whatsapp-message.received .whatsapp-bubble {
-            background: white;
-            border-top-left-radius: 0;
-        }
-
-        .whatsapp-text {
-            font-size: 0.875rem;
-            line-height: 1.4;
-            word-wrap: break-word;
-            margin-bottom: 0.125rem;
-        }
-
-        .whatsapp-time {
-            font-size: 0.6875rem;
-            color: #667781;
-            text-align: right;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 0.25rem;
-        }
-
-        .whatsapp-check {
-            width: 16px;
-            height: 11px;
-        }
-
-        .whatsapp-check-read {
-            color: #53bdeb;
-        }
-
-        .whatsapp-check-sent {
-            color: #667781;
-        }
-
-        /* WhatsApp Typing Indicator */
-        .whatsapp-typing {
-            display: flex;
-            align-items: center;
-            padding: 0.625rem 0.875rem;
-            background: white;
-            border-radius: 0.5rem;
-            border-top-left-radius: 0;
-            width: fit-content;
-            box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
-        }
-
-        .typing-dots {
-            display: flex;
-            gap: 0.25rem;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: #667781;
-            border-radius: 50%;
-            animation: typingAnimation 1.5s infinite;
-        }
-
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typingAnimation {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: 0.5;
-            }
-            30% {
-                transform: translateY(-10px);
-                opacity: 1;
-            }
-        }
-
-        /* WhatsApp Input */
-        .whatsapp-input {
-            padding: 0.5rem;
-            background: #f0f2f5;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .input-emoji {
-            width: 28px;
-            height: 28px;
-            cursor: pointer;
-            opacity: 0.6;
-        }
-
-        .input-attachment {
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            opacity: 0.6;
-            transform: rotate(45deg);
-        }
-
-        .whatsapp-input-field {
-            flex: 1;
-            padding: 0.625rem 0.875rem;
-            background: white;
+        .close-button {
+            background: rgba(255, 255, 255, 0.2);
             border: none;
-            border-radius: 1.5rem;
-            font-size: 0.875rem;
-            outline: none;
-        }
-
-        .whatsapp-input-field:focus {
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-        }
-
-        .input-send {
-            width: 40px;
-            height: 40px;
-            background: #075e54;
+            color: white;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
+            transition: background 0.2s;
         }
 
-        .input-send:hover {
-            background: #128c7e;
-        }
-
-        .input-send svg {
-            width: 20px;
-            height: 20px;
-            color: white;
-        }
-
-        .loading-state {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        /* Style for widget container */
-        #retell-chat-widget {
-            width: 100%;
-            height: 100%;
-            position: relative;
+        .close-button:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         /* Mobile Responsiveness */
@@ -559,40 +340,38 @@
                             </form>
                         </div>
 
-                        <!-- WhatsApp Style Chat Container -->
-                        <div class="whatsapp-container">
-                            <div class="whatsapp-header">
-                                <div class="whatsapp-header-left">
-                                    <svg class="back-arrow" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-                                    </svg>
-                                    <div class="whatsapp-avatar">
-                                        <img src="bancor-verde.png" alt="Banco">
-                                    </div>
-                                    <div class="whatsapp-contact-info">
-                                        <div class="whatsapp-contact-name">Banco de Córdoba</div>
-                                        <div class="whatsapp-status">Kleva Collections Assistant</div>
-                                    </div>
-                                </div>
-                                <div class="whatsapp-header-right">
-                                    <svg class="header-icon" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                                    </svg>
-                                    <svg class="header-icon" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="whatsapp-body" id="chatBody">
-                                <div class="loading-state" id="loadingState">
-                                    <p style="color: #667781; font-size: 0.875rem;">Fill in customer data to start conversation</p>
-                                </div>
-                                <div id="retell-chat-widget" style="display: none;"></div>
+                        <!-- Chat Container -->
+                        <div class="chat-container" id="chatContainer">
+                            <div class="chat-placeholder">
+                                Fill in customer data to start conversation
                             </div>
                         </div>
                     </div>
                 </main>
             </div>
+        </div>
+    </div>
+
+    <!-- Full Screen Chat Modal -->
+    <div id="fullChatContainer" style="display: none;">
+        <div class="chat-active">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-avatar">
+                        <img src="bancor-verde.png" alt="Banco">
+                    </div>
+                    <div>
+                        <div class="chat-title">Banco de Córdoba</div>
+                        <div class="chat-subtitle">Collections Assistant</div>
+                    </div>
+                </div>
+                <button class="close-button" onclick="closeChat()">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 8.586L4.293 2.879A1 1 0 102.879 4.293L8.586 10l-5.707 5.707a1 1 0 101.414 1.414L10 11.414l5.707 5.707a1 1 0 001.414-1.414L11.414 10l5.707-5.707a1 1 0 00-1.414-1.414L10 8.586z"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="retellChatWindow" style="width: 100%; height: calc(100% - 72px);"></div>
         </div>
     </div>
 
@@ -623,37 +402,38 @@
                 dueDate
             };
 
-            // Hide loading state and show widget container
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('retell-chat-widget').style.display = 'block';
+            // Show full screen chat
+            document.getElementById('fullChatContainer').style.display = 'block';
 
-            // Disable form inputs during conversation
-            document.getElementById('customerName').disabled = true;
-            document.getElementById('debtAmount').disabled = true;
-            document.getElementById('dueDate').disabled = true;
-            document.querySelector('.btn-primary').disabled = true;
+            // Load Retell chat window
+            loadRetellChatWindow(customerName, debtAmount, dueDate);
 
-            // Load the widget
-            loadRetellWidget(customerName, debtAmount, dueDate);
+            // Disable form
+            document.getElementById('customerForm').querySelectorAll('input, button').forEach(el => {
+                el.disabled = true;
+            });
         }
 
-        function loadRetellWidget(customerName, debtAmount, dueDate) {
-            // Remove any existing widget
-            const existingWidget = document.getElementById('retell-widget');
-            if (existingWidget) existingWidget.remove();
+        function loadRetellChatWindow(customerName, debtAmount, dueDate) {
+            // Remove any existing script
+            const existingScript = document.getElementById('retell-chat-script');
+            if (existingScript) existingScript.remove();
 
-            // Create the widget script
-            const widgetScript = document.createElement('script');
-            widgetScript.id = 'retell-widget';
-            widgetScript.src = 'https://dashboard.retellai.com/retell-widget.js';
-            widgetScript.type = 'module';
-            widgetScript.setAttribute('data-public-key', 'key_f1b1aa7616495ba07890ef19fcea');
-            widgetScript.setAttribute('data-agent-id', 'agent_627fe1d68a83076772b3551df4');
-            widgetScript.setAttribute('data-agent-version', '6');
-            widgetScript.setAttribute('data-title', `Chat with ${customerName}`);
-            widgetScript.setAttribute('data-color', '#075e54');
-            widgetScript.setAttribute('data-auto-open', 'true');
-            widgetScript.setAttribute('data-dynamic', JSON.stringify({
+            // Clear the container
+            const container = document.getElementById('retellChatWindow');
+            container.innerHTML = '';
+
+            // Create new script for Retell chat window
+            const script = document.createElement('script');
+            script.id = 'retell-chat-script';
+            script.src = 'https://sdk.retellai.com/embed/retell-chat-window.js';
+
+            // Configure the chat window
+            script.setAttribute('data-public-key', 'key_f1b1aa7616495ba07890ef19fcea');
+            script.setAttribute('data-agent-id', 'agent_627fe1d68a83076772b3551df4');
+            script.setAttribute('data-agent-version', '6');
+            script.setAttribute('data-container-id', 'retellChatWindow');
+            script.setAttribute('data-dynamic-variables', JSON.stringify({
                 name: customerName,
                 greeting: 'Hola',
                 amount: debtAmount,
@@ -661,37 +441,25 @@
                 farewell: 'que tengas un buen día'
             }));
 
-            document.head.appendChild(widgetScript);
+            // Add script to page
+            document.body.appendChild(script);
+        }
 
-            // Auto-click the widget button after it loads
-            let attempts = 0;
-            const checkInterval = setInterval(() => {
-                attempts++;
-                const widgetButton = document.querySelector('#retell-widget-root button');
-                if (widgetButton) {
-                    widgetButton.click();
-                    clearInterval(checkInterval);
+        function closeChat() {
+            // Hide full screen chat
+            document.getElementById('fullChatContainer').style.display = 'none';
 
-                    // Show chat in fullscreen-like mode
-                    setTimeout(() => {
-                        const widgetRoot = document.getElementById('retell-widget-root');
-                        if (widgetRoot) {
-                            const chatContainer = widgetRoot.querySelector('div[style*="position: fixed"]');
-                            if (chatContainer) {
-                                // Make it fill the chat area
-                                chatContainer.style.position = 'fixed';
-                                chatContainer.style.bottom = '20px';
-                                chatContainer.style.right = '20px';
-                                chatContainer.style.width = '600px';
-                                chatContainer.style.height = '500px';
-                                chatContainer.style.maxWidth = '90vw';
-                                chatContainer.style.maxHeight = '80vh';
-                            }
-                        }
-                    }, 500);
-                }
-                if (attempts > 30) clearInterval(checkInterval); // Stop after 3 seconds
-            }, 100);
+            // Remove Retell script
+            const script = document.getElementById('retell-chat-script');
+            if (script) script.remove();
+
+            // Clear container
+            document.getElementById('retellChatWindow').innerHTML = '';
+
+            // Re-enable form
+            document.getElementById('customerForm').querySelectorAll('input, button').forEach(el => {
+                el.disabled = false;
+            });
         }
     </script>
 </body>
