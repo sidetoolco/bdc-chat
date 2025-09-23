@@ -7,9 +7,20 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="shortcut icon" href="favicon.svg" type="image/svg+xml">
 
-    <!-- Custom Embedded Chat (No Retell Widget) -->
-    <!-- Agent ID: agent_627fe1d68a83076772b3551df4 -->
-    <!-- Conversation Flow ID: conversation_flow_51a24ed50a77 -->
+    <!-- Retell Chat Widget Script -->
+    <script
+        id="retell-widget"
+        src="https://dashboard.retellai.com/retell-widget.js"
+        type="module"
+        data-public-key="key_f1b1aa7616495ba07890ef19fcea"
+        data-agent-id="agent_627fe1d68a83076772b3551df4"
+        data-title="Kleva Collections Assistant"
+        data-logo-url="kleva-logo.webp"
+        data-color="#9333ea"
+        data-bot-name="Kleva Bot"
+        data-show-ai-popup="false"
+        data-auto-open="false"
+    ></script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -420,6 +431,29 @@
             }
         }
 
+        /* Hide Retell widget button */
+        #retell-widget-button {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        /* Style Retell widget when opened */
+        .retell-widget-container,
+        [class*="retell-widget"],
+        iframe[src*="retellai"] {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: min(90%, 800px) !important;
+            height: min(80vh, 600px) !important;
+            z-index: 10000 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        }
+
 
         /* Chat container in center */
         .chat-container {
@@ -662,22 +696,67 @@
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
 
+                // Get form data
+                const formData = new FormData(form);
+                const customerName = form.querySelector('input[type="text"]').value;
+                const debtAmount = form.querySelector('input[type="number"]').value;
+                const dueDate = form.querySelector('input[type="date"]').value;
+
                 // Enable chat inputs
                 chatInput.disabled = false;
                 chatSendBtn.disabled = false;
 
-                // Update chat messages area
+                // Update chat messages area with customer context
                 chatMessages.innerHTML = `
                     <div style="padding: 1rem;">
+                        <div style="background: #e9d5ff; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <p style="font-size: 0.75rem; color: #7e22ce;">
+                                <strong>Customer Info:</strong><br>
+                                Name: ${customerName}<br>
+                                Debt Amount: $${debtAmount}<br>
+                                Due Date: ${dueDate}
+                            </p>
+                        </div>
                         <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; max-width: 70%;">
                             <p style="font-size: 0.875rem; color: #4b5563;">
-                                <strong>Kleva Assistant:</strong> Hello! I'm here to help you with the collections process.
-                                How can I assist you today?
+                                <strong>Kleva Assistant:</strong> Initiating collections conversation with Retell AI...
                             </p>
                         </div>
                     </div>
                 `;
 
+                // Trigger Retell widget programmatically
+                setTimeout(() => {
+                    // Find and click the hidden Retell button
+                    const retellButton = document.querySelector('#retell-widget-button');
+                    if (retellButton) {
+                        // Force show and click
+                        retellButton.style.display = 'block';
+                        retellButton.style.visibility = 'visible';
+                        retellButton.style.opacity = '1';
+                        retellButton.click();
+                        // Hide again immediately
+                        setTimeout(() => {
+                            retellButton.style.display = 'none';
+                            retellButton.style.visibility = 'hidden';
+                            retellButton.style.opacity = '0';
+                        }, 100);
+                    } else {
+                        // If widget isn't loaded yet, try alternative method
+                        if (window.RetellWebClient) {
+                            window.RetellWebClient.open();
+                        } else {
+                            console.log('Retell widget is loading, please try again...');
+                        }
+                    }
+                }, 500);
+
+                // Store customer data for context (optional - for future use)
+                window.customerContext = {
+                    name: customerName,
+                    debtAmount: debtAmount,
+                    dueDate: dueDate
+                };
             });
 
             // Handle chat send button click
