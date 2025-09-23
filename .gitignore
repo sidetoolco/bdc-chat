@@ -45,4 +45,4 @@ logs
 .env
 
 # Vercel
-.vercel
+.vercel.DS_Store
