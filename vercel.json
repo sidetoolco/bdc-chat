@@ -29,10 +29,14 @@
     },
     {
       "src": "/",
-      "dest": "/sdk-chat.html"
+      "dest": "/custom-chat.html"
     },
     {
       "src": "/index",
+      "dest": "/custom-chat.html"
+    },
+    {
+      "src": "/sdk",
       "dest": "/sdk-chat.html"
     },
     {

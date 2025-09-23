@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kleva - Collections Chat</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', system-ui, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+            background: #f9fafb;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 14rem;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .logo-container {
+            padding: 0.5rem 1rem;
+        }
+
+        .logo-container img {
+            height: 30px;
+            width: auto;
+        }
+
+        /* Content Area */
+        .content-area {
+            margin-left: 14rem;
+            flex: 1;
+            background: #f9fafb;
+            min-height: 100vh;
+        }
+
+        .content-wrapper {
+            margin: 1.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            min-height: calc(100vh - 3rem);
+        }
+
+        .content-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 400;
+            color: #111827;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            height: fit-content;
+        }
+
+        .form-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .required {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            font-size: 0.875rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #9333ea;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: #9333ea;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.625rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover {
+            background: #7e22ce;
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Custom Chat Interface */
+        .chat-container {
+            width: 100%;
+            height: 650px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #9333ea, #7e22ce);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .chat-avatar svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .chat-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: #fafafa;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.agent {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .message.agent .message-bubble {
+            background: white;
+            color: #111827;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .message.user .message-bubble {
+            background: #9333ea;
+            color: white;
+            border-bottom-right-radius: 0.25rem;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .chat-controls {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .call-button {
+            flex: 1;
+            background: linear-gradient(135deg, #9333ea, #7e22ce);
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .call-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+        }
+
+        .call-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .call-button.active {
+            background: #ef4444;
+        }
+
+        .call-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            border-bottom-left-radius: 0.25rem;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #9333ea;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .content-area {
+                margin-left: 0;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="kleva-logo.webp" alt="Kleva">
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="content-wrapper">
+                <header class="content-header">
+                    <h1 class="page-title">Playground - Collections</h1>
+                </header>
+                <main class="main-content">
+                    <div class="form-grid">
+                        <!-- Customer Data Form -->
+                        <div class="form-card">
+                            <h3>Customer Data</h3>
+                            <form id="customerForm">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Full Name<span class="required">*</span>
+                                    </label>
+                                    <input type="text" class="form-input" id="customerName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Debt Amount<span class="required">*</span>
+                                    </label>
+                                    <input type="number" class="form-input" id="debtAmount" step="0.01" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Due Date<span class="required">*</span>
+                                    </label>
+                                    <input type="date" class="form-input" id="dueDate" required>
+                                </div>
+                                <button type="submit" class="btn-primary">Start Chat</button>
+                            </form>
+                        </div>
+
+                        <!-- Custom Chat Container -->
+                        <div class="chat-container">
+                            <div class="chat-header">
+                                <div class="chat-header-left">
+                                    <div class="chat-avatar">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 style="font-size: 1rem; font-weight: 600;">Kleva Collections Assistant</h3>
+                                        <p style="font-size: 0.75rem; color: #6b7280;">Banco de Córdoba</p>
+                                    </div>
+                                </div>
+                                <div class="chat-status" id="callStatus">
+                                    <span class="status-dot"></span>
+                                    <span style="font-size: 0.875rem; color: #6b7280;">Ready</span>
+                                </div>
+                            </div>
+                            <div class="chat-messages" id="chatMessages">
+                                <div style="text-align: center; padding: 2rem; color: #6b7280;">
+                                    <p>Fill in customer data to start the conversation</p>
+                                </div>
+                            </div>
+                            <div class="chat-controls">
+                                <button class="call-button" id="callButton" disabled>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                    </svg>
+                                    <span>Start Call</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Retell Web SDK -->
+    <script src="https://sdk.retellai.com/v1/retell-client-sdk-web.min.js"></script>
+
+    <script>
+        let retellClient = null;
+        let isCallActive = false;
+        let customerData = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('customerForm');
+            const callButton = document.getElementById('callButton');
+            const chatMessages = document.getElementById('chatMessages');
+            const callStatus = document.getElementById('callStatus');
+            const dateInput = document.getElementById('dueDate');
+
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.setAttribute('min', today);
+
+            // Form submission
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                customerData = {
+                    customerName: document.getElementById('customerName').value,
+                    debtAmount: document.getElementById('debtAmount').value,
+                    dueDate: document.getElementById('dueDate').value
+                };
+
+                // Clear chat and show welcome message
+                chatMessages.innerHTML = '';
+                addMessage('agent', `Hola ${customerData.customerName}, soy Pilar del Banco de Córdoba. Estoy lista para ayudarte con tu cuenta.`);
+
+                // Enable call button
+                callButton.disabled = false;
+
+                updateStatus('Ready to call');
+            });
+
+            // Call button handler
+            callButton.addEventListener('click', async function() {
+                if (!isCallActive) {
+                    startCall();
+                } else {
+                    endCall();
+                }
+            });
+
+            async function startCall() {
+                try {
+                    updateStatus('Connecting...', '#f59e0b');
+                    callButton.disabled = true;
+
+                    // Get access token from backend
+                    const response = await fetch('/api/create-web-call', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            customerName: customerData.customerName,
+                            debtAmount: customerData.debtAmount,
+                            dueDate: customerData.dueDate
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.error || 'Failed to create call');
+                    }
+
+                    // Initialize Retell SDK
+                    retellClient = new RetellWebClient();
+
+                    // Set up event listeners
+                    retellClient.on("call_started", () => {
+                        console.log("Call started");
+                        isCallActive = true;
+                        updateCallButton(true);
+                        updateStatus('Connected', '#10b981');
+                        addMessage('system', 'Call started - Speak naturally');
+                    });
+
+                    retellClient.on("call_ended", () => {
+                        console.log("Call ended");
+                        handleCallEnd();
+                    });
+
+                    retellClient.on("error", (error) => {
+                        console.error("Call error:", error);
+                        addMessage('system', `Error: ${error.message || 'Connection failed'}`);
+                        handleCallEnd();
+                    });
+
+                    retellClient.on("update", (update) => {
+                        // Handle transcripts
+                        if (update.transcript) {
+                            const speaker = update.transcript.role === 'agent' ? 'agent' : 'user';
+                            const text = update.transcript.content;
+
+                            // Replace variables in agent messages
+                            let displayText = text;
+                            if (speaker === 'agent') {
+                                displayText = displayText.replace('{{name}}', customerData.customerName);
+                                displayText = displayText.replace('{{amount}}', customerData.debtAmount);
+                                displayText = displayText.replace('{{due_date}}', customerData.dueDate);
+                            }
+
+                            addMessage(speaker, displayText);
+                        }
+                    });
+
+                    // Start the call with access token
+                    await retellClient.startCall({
+                        accessToken: data.access_token,
+                        sampleRate: 16000,
+                        enableUpdate: true
+                    });
+
+                    callButton.disabled = false;
+
+                } catch (error) {
+                    console.error('Error starting call:', error);
+                    updateStatus('Failed to connect', '#ef4444');
+                    addMessage('system', 'Failed to start call. Please try again.');
+                    callButton.disabled = false;
+                    isCallActive = false;
+                    updateCallButton(false);
+                }
+            }
+
+            function endCall() {
+                if (retellClient) {
+                    retellClient.stopCall();
+                }
+                handleCallEnd();
+            }
+
+            function handleCallEnd() {
+                isCallActive = false;
+                updateCallButton(false);
+                updateStatus('Call ended', '#6b7280');
+                addMessage('system', 'Call ended');
+                retellClient = null;
+            }
+
+            function updateCallButton(active) {
+                if (active) {
+                    callButton.classList.add('active');
+                    callButton.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <span>End Call</span>
+                    `;
+                } else {
+                    callButton.classList.remove('active');
+                    callButton.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        <span>Start Call</span>
+                    `;
+                }
+            }
+
+            function updateStatus(text, color = '#10b981') {
+                callStatus.innerHTML = `
+                    <span class="status-dot" style="background: ${color};"></span>
+                    <span style="font-size: 0.875rem; color: #6b7280;">${text}</span>
+                `;
+            }
+
+            function addMessage(type, text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}`;
+
+                if (type === 'system') {
+                    messageDiv.style.justifyContent = 'center';
+                    messageDiv.innerHTML = `
+                        <div style="color: #6b7280; font-size: 0.75rem; font-style: italic;">
+                            ${text}
+                        </div>
+                    `;
+                } else {
+                    messageDiv.innerHTML = `
+                        <div class="message-bubble">
+                            ${text}
+                            <div class="message-time">${new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                    `;
+                }
+
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message agent';
+                typingDiv.id = 'typing-indicator';
+                typingDiv.innerHTML = `
+                    <div class="typing-indicator">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                `;
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function hideTypingIndicator() {
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) {
+                    indicator.remove();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
