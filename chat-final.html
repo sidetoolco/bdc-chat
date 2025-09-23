@@ -809,8 +809,15 @@
                 }, 300);
             }, 3000);
 
+            // Remove any existing Retell widget script
+            const existingScript = document.getElementById('retell-widget');
+            if (existingScript) {
+                existingScript.remove();
+            }
+
             // Create Retell widget
             const script = document.createElement('script');
+            script.id = 'retell-widget';
             script.src = 'https://dashboard.retellai.com/retell-widget.js';
             script.type = 'module';
             script.setAttribute('data-public-key', 'key_f1b1aa7616495ba07890ef19fcea');
