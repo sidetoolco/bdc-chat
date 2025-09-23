@@ -490,19 +490,38 @@
             padding: 2rem;
         }
 
-        /* Hide Retell widget completely */
-        #retell-widget-root,
-        #retell-widget-root * {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
+        /* Position Retell widget properly in chat container */
+        #retell-widget-root {
             position: absolute !important;
-            left: -9999px !important;
-            top: -9999px !important;
-            width: 0 !important;
-            height: 0 !important;
-            overflow: hidden !important;
+            bottom: 0 !important;
+            right: 0 !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 1000;
+        }
+
+        #retell-widget-root > div {
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Hide the floating button */
+        #retell-widget-root button[aria-label] {
+            display: none !important;
+        }
+
+        /* Style the iframe when it appears */
+        #retell-widget-root iframe {
+            position: absolute !important;
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+            border-radius: 0 !important;
+            top: 0 !important;
+            left: 0 !important;
         }
 
         /* Mobile Responsiveness */
@@ -592,23 +611,10 @@
                                 </div>
                             </div>
                             <div class="whatsapp-body" id="chatBody">
-                                <div class="loading-state">
+                                <div class="loading-state" id="loadingState">
                                     <p style="color: #667781; font-size: 0.875rem;">Fill in customer data to start conversation</p>
                                 </div>
-                            </div>
-                            <div class="whatsapp-input" id="chatInput" style="display: none;">
-                                <svg class="input-emoji" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M9.153 11.603c.795 0 1.439-.879 1.439-1.962s-.644-1.962-1.439-1.962-1.439.879-1.439 1.962.644 1.962 1.439 1.962zm-3.204 1.362c-.026-.307-.131 5.218 6.063 5.551 6.066-.25 6.066-5.551 6.066-5.551-6.078 1.416-12.129 0-12.129 0zm11.363 1.108s-.669 1.959-5.051 1.959c-3.505 0-5.388-1.164-5.607-1.959 0 0 5.912 1.055 10.658 0zM11.804 1.011C5.609 1.011.978 6.033.978 12.228s4.826 10.761 11.021 10.761S23.02 18.423 23.02 12.228c.001-6.195-5.021-11.217-11.216-11.217zM12 21.354c-5.273 0-9.381-3.886-9.381-9.159s3.942-9.548 9.215-9.548 9.548 4.275 9.548 9.548c-.001 5.272-4.109 9.159-9.382 9.159zm3.108-9.751c.795 0 1.439-.879 1.439-1.962s-.644-1.962-1.439-1.962-1.439.879-1.439 1.962.644 1.962 1.439 1.962z"/>
-                                </svg>
-                                <svg class="input-attachment" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/>
-                                </svg>
-                                <input type="text" class="whatsapp-input-field" id="messageInput" placeholder="Type a message" onkeypress="handleKeyPress(event)">
-                                <div class="input-send" onclick="sendMessage()">
-                                    <svg fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                                    </svg>
-                                </div>
+                                <div id="retell-widget-container" style="width: 100%; height: 100%; position: relative; display: none;"></div>
                             </div>
                         </div>
                     </div>
@@ -619,8 +625,6 @@
 
     <script>
         let currentCustomerData = null;
-        let conversationActive = false;
-        let conversationScript = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('customerForm');
@@ -639,27 +643,16 @@
             const debtAmount = document.getElementById('debtAmount').value;
             const dueDate = document.getElementById('dueDate').value;
 
-            // Store current data for restart
+            // Store current data
             currentCustomerData = {
                 customerName,
                 debtAmount,
                 dueDate
             };
 
-            // Initialize conversation script
-            initializeConversation();
-
-            const chatBody = document.getElementById('chatBody');
-            const chatInput = document.getElementById('chatInput');
-
-            // Clear chat body
-            chatBody.innerHTML = '';
-
-            // Add date header
-            addDateHeader();
-
-            // Show input
-            chatInput.style.display = 'flex';
+            // Hide loading state and show widget container
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('retell-widget-container').style.display = 'block';
 
             // Disable form inputs during conversation
             document.getElementById('customerName').disabled = true;
@@ -667,40 +660,8 @@
             document.getElementById('dueDate').disabled = true;
             document.querySelector('.btn-primary').disabled = true;
 
-            // Mark conversation as active
-            conversationActive = true;
-
-            // Start the conversation
-            setTimeout(() => {
-                addReceivedMessage(`Hola. Soy Pilar, agente virtual del Banco de Córdoba ¿Me comunico con ${customerName}?`);
-            }, 500);
-
-            // Load Retell widget in background (hidden)
+            // Load Retell widget
             loadRetellWidget(customerName, debtAmount, dueDate);
-        }
-
-        function initializeConversation() {
-            const { customerName, debtAmount, dueDate } = currentCustomerData;
-
-            conversationScript = {
-                currentStep: 0,
-                steps: [
-                    {
-                        agent: `Hola. ¿Me comunico con ${customerName}?`,
-                        expectedResponses: ['si', 'sí', 'correcto', 'soy yo'],
-                        nextAgent: `Qué tal, ${customerName}. Mi nombre es Pilar, soy agente virtual del Banco de Córdoba. Te llamo para recordarte que tenés un pago de ${debtAmount} pesos que vence el día ${dueDate}. ¿Podemos contar con tu pago para esa fecha?`
-                    },
-                    {
-                        agent: `¿Podemos contar con tu pago de ${debtAmount} pesos para el ${dueDate}?`,
-                        expectedResponses: ['si', 'no', 'tal vez', 'no sé'],
-                        nextAgent: {
-                            'si': 'Perfecto, muchas gracias. Quedamos entonces con tu compromiso de pago. ¿Necesitás alguna información adicional?',
-                            'no': '¿Hay alguna dificultad que te impide realizar el pago en esa fecha? ¿Podríamos acordar un plan de pago?',
-                            'default': 'Entiendo. ¿Te gustaría que revisemos opciones de pago que se ajusten mejor a tu situación?'
-                        }
-                    }
-                ]
-            };
         }
 
         function loadRetellWidget(customerName, debtAmount, dueDate) {
@@ -708,7 +669,10 @@
             const existingWidget = document.getElementById('retell-widget');
             if (existingWidget) existingWidget.remove();
 
-            // Create widget script with dynamic data - it will be hidden by CSS
+            const existingRoot = document.getElementById('retell-widget-root');
+            if (existingRoot) existingRoot.remove();
+
+            // Create widget script with dynamic data
             const widgetScript = document.createElement('script');
             widgetScript.id = 'retell-widget';
             widgetScript.src = 'https://dashboard.retellai.com/retell-widget.js';
@@ -716,6 +680,7 @@
             widgetScript.setAttribute('data-public-key', 'key_f1b1aa7616495ba07890ef19fcea');
             widgetScript.setAttribute('data-agent-id', 'agent_627fe1d68a83076772b3551df4');
             widgetScript.setAttribute('data-agent-version', '6');
+            widgetScript.setAttribute('data-auto-open', 'true');
             widgetScript.setAttribute('data-dynamic', JSON.stringify({
                 name: customerName,
                 greeting: 'Hola',
@@ -725,113 +690,18 @@
             }));
 
             document.head.appendChild(widgetScript);
-        }
 
-        function addDateHeader() {
-            const chatBody = document.getElementById('chatBody');
-            const dateDiv = document.createElement('div');
-            dateDiv.className = 'whatsapp-date';
-            dateDiv.innerHTML = `<span>${new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}</span>`;
-            chatBody.appendChild(dateDiv);
-        }
-
-        function addReceivedMessage(text) {
-            const chatBody = document.getElementById('chatBody');
-
-            // Show typing indicator
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'whatsapp-message received';
-            typingDiv.id = 'typing-indicator';
-            typingDiv.innerHTML = `
-                <div class="whatsapp-typing">
-                    <div class="typing-dots">
-                        <span class="typing-dot"></span>
-                        <span class="typing-dot"></span>
-                        <span class="typing-dot"></span>
-                    </div>
-                </div>
-            `;
-            chatBody.appendChild(typingDiv);
-            chatBody.scrollTop = chatBody.scrollHeight;
-
-            // Replace with actual message after delay
+            // Move widget to container after it loads
             setTimeout(() => {
-                typingDiv.remove();
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'whatsapp-message received';
-                messageDiv.innerHTML = `
-                    <div class="whatsapp-bubble">
-                        <div class="whatsapp-text">${text}</div>
-                        <div class="whatsapp-time">${getCurrentTime()}</div>
-                    </div>
-                `;
-                chatBody.appendChild(messageDiv);
-                chatBody.scrollTop = chatBody.scrollHeight;
-            }, 1500);
-        }
-
-        function addSentMessage(text) {
-            const chatBody = document.getElementById('chatBody');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'whatsapp-message sent';
-            messageDiv.innerHTML = `
-                <div class="whatsapp-bubble">
-                    <div class="whatsapp-text">${text}</div>
-                    <div class="whatsapp-time">
-                        ${getCurrentTime()}
-                        <svg class="whatsapp-check whatsapp-check-read" viewBox="0 0 16 11" fill="currentColor">
-                            <path d="M11.071.653a.5.5 0 0 1 .708 0l3.568 3.568a.5.5 0 0 1 0 .708l-6.396 6.396a.5.5 0 0 1-.708 0L5.354 8.436a.5.5 0 1 1 .707-.707l2.535 2.535L14.64 4.22a.5.5 0 0 1 0-.708L11.07.653z"/>
-                            <path d="M5.429 4.22a.5.5 0 0 1 .707 0l2.54 2.54a.5.5 0 0 1 0 .706L6.14 10.003.708 4.57a.5.5 0 0 1 0-.707l3.568-3.568a.5.5 0 0 1 .707 0L8.257 3.57 5.429 6.398a.5.5 0 0 1 0-.707L5.43 4.22z"/>
-                        </svg>
-                    </div>
-                </div>
-            `;
-            chatBody.appendChild(messageDiv);
-            chatBody.scrollTop = chatBody.scrollHeight;
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-
-            if (!message) return;
-
-            // Add user message
-            addSentMessage(message);
-            input.value = '';
-
-            // Process response
-            processUserResponse(message);
-        }
-
-        function processUserResponse(message) {
-            const lowerMessage = message.toLowerCase();
-
-            // Simulate agent responses based on conversation flow
-            setTimeout(() => {
-                if (lowerMessage.includes('si') || lowerMessage.includes('sí')) {
-                    if (conversationScript.currentStep === 0) {
-                        addReceivedMessage(`Qué tal, ${currentCustomerData.customerName}. Mi nombre es Pilar, soy agente virtual del Banco de Córdoba. Te llamo para recordarte que tenés un pago de ${currentCustomerData.debtAmount} pesos que vence el día ${currentCustomerData.dueDate}. ¿Podemos contar con tu pago para esa fecha?`);
-                        conversationScript.currentStep++;
-                    } else {
-                        addReceivedMessage('Perfecto, muchas gracias. Quedamos entonces con tu compromiso de pago. ¿Necesitás alguna información adicional?');
-                    }
-                } else if (lowerMessage.includes('no')) {
-                    addReceivedMessage('¿Hay alguna dificultad que te impide realizar el pago en esa fecha? ¿Podríamos acordar un plan de pago?');
-                } else {
-                    addReceivedMessage('Entiendo. ¿Te gustaría que revisemos opciones de pago que se ajusten mejor a tu situación?');
+                const widgetRoot = document.getElementById('retell-widget-root');
+                const container = document.getElementById('retell-widget-container');
+                if (widgetRoot && container) {
+                    container.appendChild(widgetRoot);
+                    // Auto-open the chat
+                    const button = widgetRoot.querySelector('button');
+                    if (button) button.click();
                 }
             }, 1000);
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
-
-        function getCurrentTime() {
-            return new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
         }
     </script>
 </body>
