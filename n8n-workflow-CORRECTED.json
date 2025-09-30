@@ -363,7 +363,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { \"agent_id\": \"agent_627fe1d68a83076772b3551df4\", \"metadata\": { \"phone_number\": $json.to, \"customer_name\": $json.customer_name, \"debt_amount\": $json.debt_amount, \"due_date\": $json.due_date }, \"retell_llm_dynamic_variables\": { \"greeting\": \"Hola\", \"name\": $json.customer_name, \"amount\": $json.debt_amount, \"due_date\": $json.due_date } } }}",
+        "jsonBody": "={{ { \"agent_id\": \"agent_627fe1d68a83076772b3551df4\", \"agent_version\": 9, \"metadata\": { \"phone_number\": $json.to, \"customer_name\": $json.customer_name, \"debt_amount\": $json.debt_amount, \"due_date\": $json.due_date }, \"retell_llm_dynamic_variables\": { \"greeting\": \"Hola\", \"name\": $json.customer_name, \"amount\": $json.debt_amount, \"due_date\": $json.due_date } } }}",
         "options": {}
       },
       "name": "Create Chat",
