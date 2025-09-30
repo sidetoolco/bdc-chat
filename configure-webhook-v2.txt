@@ -1,0 +1,4 @@
+curl -X POST 'https://waba-v2.360dialog.io/v1/configs/webhook' \
+  -H "D360-API-KEY: TCQwEr6tgVdcijqE1WLpcu5LAK" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"url":"https://sidetool.app.n8n.cloud/webhook/whatsapp-webhook"}'

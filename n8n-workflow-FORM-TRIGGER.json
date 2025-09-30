@@ -1,0 +1,81 @@
+{
+  "name": "Form to WhatsApp Trigger",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-trigger",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook - Receive Form Data",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.retellai.com/create-sms-chat",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer key_3ca65c9afda484a7ad1061596d14"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"from_number\": \"+15558875639\", \"to_number\": $json.body.phone_number, \"override_agent_id\": \"agent_627fe1d68a83076772b3551df4\", \"retell_llm_dynamic_variables\": { \"customer_name\": $json.body.customer_name, \"debt_amount\": $json.body.debt_amount, \"due_date\": $json.body.due_date } } }}",
+        "options": {}
+      },
+      "name": "Retell - Create SMS Chat",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"success\", \"message\": \"WhatsApp message initiated\", \"chat_id\": $json.chat_id, \"customer\": $('Webhook - Receive Form Data').item.json.body.customer_name } }}"
+      },
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Receive Form Data": {
+      "main": [
+        [
+          {
+            "node": "Retell - Create SMS Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retell - Create SMS Chat": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "name": "Simple WhatsApp Test",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-trigger",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook - Receive Form Data",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Parse form data\nconst formData = $input.item.json.body || $input.item.json;\n\nconsole.log('Form data received:', formData);\n\n// Clean phone number (remove + for 360dialog)\nconst cleanPhone = (formData.phone_number || '').replace(/\\+/g, '');\n\n// Create message\nconst message = `Hola ${formData.customer_name},\\n\\nSomos del Banco de Córdoba. Le contactamos sobre su saldo pendiente de $${formData.debt_amount} ARS con vencimiento el ${formData.due_date}.\\n\\n¿Le gustaría hablar sobre opciones de pago?`;\n\nconsole.log('Sending to phone:', cleanPhone);\nconsole.log('Message:', message);\n\nreturn {\n  to: cleanPhone,\n  message: message,\n  customer_name: formData.customer_name,\n  raw_phone: formData.phone_number\n};"
+      },
+      "name": "Prepare Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://waba-v2.360dialog.io/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "D360-API-KEY",
+              "value": "fyzs8TZuhjKccQSnCSRz8oucAK"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"messaging_product\": \"whatsapp\",\n  \"recipient_type\": \"individual\",\n  \"to\": $json.to,\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": $json.message\n  }\n} }}",
+        "options": {}
+      },
+      "name": "Send WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"success\",\n  \"message\": \"WhatsApp message sent\",\n  \"customer\": $('Prepare Data').item.json.customer_name,\n  \"sent_to\": $('Prepare Data').item.json.raw_phone,\n  \"wa_response\": $json\n} }}"
+      },
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Receive Form Data": {
+      "main": [
+        [
+          {
+            "node": "Prepare Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Data": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

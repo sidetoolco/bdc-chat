@@ -1,0 +1,140 @@
+{
+  "name": "Form to WhatsApp via 360dialog",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-trigger",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook - Receive Form Data",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Parse and format the form data\nconst formData = $input.item.json.body || $input.item.json;\n\n// Format the initial message\nconst message = `Hola ${formData.customer_name},\\n\\nSomos del Banco de Córdoba. Le contactamos sobre su saldo pendiente de $${formData.debt_amount} ARS con vencimiento el ${formData.due_date}.\\n\\n¿Le gustaría hablar sobre opciones de pago?`;\n\nreturn {\n  customer_name: formData.customer_name,\n  phone_number: formData.phone_number,\n  debt_amount: formData.debt_amount,\n  due_date: formData.due_date,\n  initial_message: message,\n  timestamp: new Date().toISOString()\n};"
+      },
+      "name": "Format Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://waba-v2.360dialog.io/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "D360-API-KEY",
+              "value": "fyzs8TZuhjKccQSnCSRz8oucAK"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"messaging_product\": \"whatsapp\",\n  \"recipient_type\": \"individual\",\n  \"to\": $json.phone_number.replace('+', ''),\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": $json.initial_message\n  }\n} }}",
+        "options": {}
+      },
+      "name": "Send WhatsApp Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.retellai.com/create-chat",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer key_3ca65c9afda484a7ad1061596d14"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"agent_id\": \"agent_627fe1d68a83076772b3551df4\",\n  \"metadata\": {\n    \"customer_name\": $('Format Message').item.json.customer_name,\n    \"phone_number\": $('Format Message').item.json.phone_number,\n    \"debt_amount\": $('Format Message').item.json.debt_amount,\n    \"due_date\": $('Format Message').item.json.due_date,\n    \"source\": \"collections_form\"\n  },\n  \"retell_llm_dynamic_variables\": {\n    \"customer_name\": $('Format Message').item.json.customer_name,\n    \"debt_amount\": $('Format Message').item.json.debt_amount,\n    \"due_date\": $('Format Message').item.json.due_date\n  }\n} }}",
+        "options": {}
+      },
+      "name": "Create Retell Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"success\",\n  \"message\": \"WhatsApp message sent successfully\",\n  \"customer\": $('Format Message').item.json.customer_name,\n  \"phone_number\": $('Format Message').item.json.phone_number,\n  \"wa_message_id\": $('Send WhatsApp Message').item.json.messages ? $('Send WhatsApp Message').item.json.messages[0].id : null,\n  \"retell_chat_id\": $json.chat_id\n} }}"
+      },
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Receive Form Data": {
+      "main": [
+        [
+          {
+            "node": "Format Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Message": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp Message": {
+      "main": [
+        [
+          {
+            "node": "Create Retell Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Retell Session": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

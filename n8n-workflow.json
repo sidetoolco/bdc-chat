@@ -1,0 +1,284 @@
+{
+  "name": "WhatsApp to Retell AI Bridge",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook - Receive WhatsApp Message",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "whatsapp-inbound"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.messages[0].type }}",
+              "value2": "text"
+            }
+          ]
+        }
+      },
+      "name": "Filter - Only Text Messages",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Extract relevant data from WhatsApp webhook\nconst waMessage = $input.item.json.body.messages[0];\nconst waContact = $input.item.json.body.contacts[0];\n\nreturn {\n  from_number: waMessage.from,\n  message_text: waMessage.text.body,\n  message_id: waMessage.id,\n  timestamp: waMessage.timestamp,\n  contact_name: waContact.profile.name,\n  wa_id: waContact.wa_id\n};"
+      },
+      "name": "Code - Parse WhatsApp Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.retellai.com/create-chat",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "retellApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer key_3ca65c9afda484a7ad1061596d14"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "agent_id",
+              "value": "agent_627fe1d68a83076772b3551df4"
+            },
+            {
+              "name": "metadata",
+              "value": "={{ { \"whatsapp_number\": $json.from_number, \"wa_id\": $json.wa_id, \"contact_name\": $json.contact_name } }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "HTTP - Create Retell Chat Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.retellai.com/create-chat-completion",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "retellApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer key_3ca65c9afda484a7ad1061596d14"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $('Code - Parse WhatsApp Data').item.json.message_text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "HTTP - Send Message to Retell",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Extract the agent's response from Retell\nconst messages = $input.item.json.messages;\nconst agentMessage = messages.find(msg => msg.role === 'agent');\n\nreturn {\n  response_text: agentMessage ? agentMessage.content : 'Sorry, I could not process your message.',\n  chat_id: $input.item.json.chat_id\n};"
+      },
+      "name": "Code - Extract Agent Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://waba-v2.360dialog.io/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "dialog360Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "D360-API-KEY",
+              "value": "TCQwEr6tgVdcijqE1WLpcu5LAK"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "messaging_product",
+              "value": "whatsapp"
+            },
+            {
+              "name": "recipient_type",
+              "value": "individual"
+            },
+            {
+              "name": "to",
+              "value": "={{ $('Code - Parse WhatsApp Data').item.json.from_number }}"
+            },
+            {
+              "name": "type",
+              "value": "text"
+            },
+            {
+              "name": "text",
+              "value": "={{ { \"body\": $json.response_text } }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "HTTP - Send Response to WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1450, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"success\", \"message\": \"Message processed\" } }}"
+      },
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1650, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"ignored\", \"message\": \"Not a text message\" } }}"
+      },
+      "name": "Respond - Not Text",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [650, 400]
+    }
+  ],
+  "connections": {
+    "Webhook - Receive WhatsApp Message": {
+      "main": [
+        [
+          {
+            "node": "Filter - Only Text Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter - Only Text Messages": {
+      "main": [
+        [
+          {
+            "node": "Code - Parse WhatsApp Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - Not Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parse WhatsApp Data": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Create Retell Chat Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Create Retell Chat Session": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Send Message to Retell",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Send Message to Retell": {
+      "main": [
+        [
+          {
+            "node": "Code - Extract Agent Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Extract Agent Response": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Send Response to WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Send Response to WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

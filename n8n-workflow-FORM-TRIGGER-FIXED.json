@@ -1,0 +1,156 @@
+{
+  "name": "Form to WhatsApp Trigger - Fixed",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-trigger",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook - Receive Form Data",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Log the incoming data\nconsole.log('Received form data:', JSON.stringify($input.item.json, null, 2));\n\n// Extract and format the data\nconst formData = $input.item.json.body || $input.item.json;\n\nreturn {\n  customer_name: formData.customer_name,\n  phone_number: formData.phone_number,\n  debt_amount: formData.debt_amount,\n  due_date: formData.due_date,\n  timestamp: formData.timestamp || new Date().toISOString()\n};"
+      },
+      "name": "Parse Form Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.retellai.com/create-sms-chat",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer key_3ca65c9afda484a7ad1061596d14"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"from_number\": \"+15558875639\",\n  \"to_number\": $json.phone_number,\n  \"override_agent_id\": \"agent_627fe1d68a83076772b3551df4\",\n  \"metadata\": {\n    \"customer_name\": $json.customer_name,\n    \"debt_amount\": $json.debt_amount,\n    \"due_date\": $json.due_date,\n    \"source\": \"collections_form\"\n  },\n  \"retell_llm_dynamic_variables\": {\n    \"customer_name\": $json.customer_name,\n    \"debt_amount\": $json.debt_amount,\n    \"due_date\": $json.due_date\n  }\n} }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "name": "Retell - Create SMS Chat",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.statusCode }}",
+              "operation": "smaller",
+              "value2": 300
+            }
+          ]
+        }
+      },
+      "name": "Check Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"success\",\n  \"message\": \"WhatsApp message initiated\",\n  \"chat_id\": $json.body.chat_id,\n  \"customer\": $('Parse Form Data').item.json.customer_name,\n  \"to_number\": $('Parse Form Data').item.json.phone_number\n} }}"
+      },
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"error\",\n  \"message\": \"Failed to send WhatsApp message\",\n  \"error\": $json.body || $json.statusMessage || 'Unknown error',\n  \"statusCode\": $json.statusCode\n} }}",
+        "options": {
+          "responseCode": 500
+        }
+      },
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 400]
+    }
+  ],
+  "connections": {
+    "Webhook - Receive Form Data": {
+      "main": [
+        [
+          {
+            "node": "Parse Form Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Form Data": {
+      "main": [
+        [
+          {
+            "node": "Retell - Create SMS Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retell - Create SMS Chat": {
+      "main": [
+        [
+          {
+            "node": "Check Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Success": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

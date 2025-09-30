@@ -1,0 +1,3 @@
+curl -X GET 'https://waba-v2.360dialog.io/v1/configs/webhook' \
+  -H "D360-API-KEY: fyzs8TZuhjKccQSnCSRz8oucAK" \
+  -H "Content-Type: application/json"
