@@ -1,0 +1,519 @@
+{
+  "name": "WhatsApp-Retell with Supabase Sessions - PRODUCTION",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://kkcqrobubmtpehagzuox.supabase.co/rest/v1/whatsapp_sessions?phone_number=eq.{{ $json.from_number }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrY3Fyb2J1Ym10cGVoYWd6dW94Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTIwNDMyNywiZXhwIjoyMDc0NzgwMzI3fQ.uKj_c7_CWEXuLaUeerpP5ALEHjMkBj-NrfUOzPveArM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrY3Fyb2J1Ym10cGVoYWd6dW94Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTIwNDMyNywiZXhwIjoyMDc0NzgwMzI3fQ.uKj_c7_CWEXuLaUeerpP5ALEHjMkBj-NrfUOzPveArM"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Lookup Session in Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [48, 1216],
+      "id": "40239b8d-bb42-4bda-8ffb-51dab049058b"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const sessions = $input.item.json;\nconst phoneNumber = $('Parse WhatsApp Data1').item.json.from_number;\nconst messageText = $('Parse WhatsApp Data1').item.json.message_text;\n\nlet chatId = null;\n\nif (Array.isArray(sessions) && sessions.length > 0) {\n  chatId = sessions[0].chat_id;\n}\n\nreturn {\n  phone_number: phoneNumber,\n  message_text: messageText,\n  existing_chat_id: chatId,\n  has_session: !!chatId,\n  contact_name: $('Parse WhatsApp Data1').item.json.contact_name,\n  wa_id: $('Parse WhatsApp Data1').item.json.wa_id\n};"
+      },
+      "name": "Check Session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 1216],
+      "id": "1f95c163-8826-4a4d-8ca1-518ea9f21c52"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.has_session }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Has Existing Session?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [448, 1216],
+      "id": "9f8b12f5-3eb3-4b74-814c-752010919225"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.retellai.com/create-chat",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer key_3ca65c9afda484a7ad1061596d14"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"agent_id\": \"agent_627fe1d68a83076772b3551df4\", \"metadata\": { \"whatsapp_number\": $json.phone_number, \"wa_id\": $json.wa_id, \"contact_name\": $json.contact_name } } }}",
+        "options": {}
+      },
+      "name": "Create New Retell Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [640, 1360],
+      "id": "3ab94014-01e6-428a-9655-bfeffeb8b83f"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://kkcqrobubmtpehagzuox.supabase.co/rest/v1/whatsapp_sessions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrY3Fyb2J1Ym10cGVoYWd6dW94Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTIwNDMyNywiZXhwIjoyMDc0NzgwMzI3fQ.uKj_c7_CWEXuLaUeerpP5ALEHjMkBj-NrfUOzPveArM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrY3Fyb2J1Ym10cGVoYWd6dW94Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTIwNDMyNywiZXhwIjoyMDc0NzgwMzI3fQ.uKj_c7_CWEXuLaUeerpP5ALEHjMkBj-NrfUOzPveArM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"phone_number\": $('Check Session').item.json.phone_number, \"chat_id\": $json.chat_id, \"customer_name\": $('Check Session').item.json.contact_name } }}",
+        "options": {}
+      },
+      "name": "Save New Session to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [848, 1360],
+      "id": "51fbe64f-eb10-47b3-9079-d1dbeecba4b1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  chat_id: $json.chat_id,\n  message_text: $('Check Session').item.json.message_text\n};"
+      },
+      "name": "Prepare New Session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1040, 1360],
+      "id": "9189c1bb-391d-444e-8a7f-40268949bf02"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  chat_id: $json.existing_chat_id,\n  message_text: $json.message_text\n};"
+      },
+      "name": "Use Existing Session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [640, 1056],
+      "id": "d0490952-33ce-4051-b772-0a2a5294380f"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://kkcqrobubmtpehagzuox.supabase.co/rest/v1/whatsapp_sessions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrY3Fyb2J1Ym10cGVoYWd6dW94Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTIwNDMyNywiZXhwIjoyMDc0NzgwMzI3fQ.uKj_c7_CWEXuLaUeerpP5ALEHjMkBj-NrfUOzPveArM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrY3Fyb2J1Ym10cGVoYWd6dW94Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTIwNDMyNywiZXhwIjoyMDc0NzgwMzI3fQ.uKj_c7_CWEXuLaUeerpP5ALEHjMkBj-NrfUOzPveArM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"last_message_at\": new Date().toISOString() } }}",
+        "options": {}
+      },
+      "name": "Update Last Message Time",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [848, 1056],
+      "id": "1e775d71-397f-444c-a59d-f21fd41deeac"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  chat_id: $('Use Existing Session').item.json.chat_id,\n  message_text: $('Use Existing Session').item.json.message_text\n};"
+      },
+      "name": "Prepare Existing Session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1040, 1056],
+      "id": "8a9ce93a-84d4-4072-99a8-620b87b9ea96"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.retellai.com/create-chat",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer key_3ca65c9afda484a7ad1061596d14"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"agent_id\": \"agent_627fe1d68a83076772b3551df4\", \"metadata\": { \"phone_number\": $json.to, \"customer_name\": $json.customer_name, \"debt_amount\": $json.debt_amount, \"due_date\": $json.due_date } } }}",
+        "options": {}
+      },
+      "name": "Create Chat Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [-160, 1712],
+      "id": "451c4d97-b0ee-4d9e-afce-841506232618"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://kkcqrobubmtpehagzuox.supabase.co/rest/v1/whatsapp_sessions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrY3Fyb2J1Ym10cGVoYWd6dW94Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTIwNDMyNywiZXhwIjoyMDc0NzgwMzI3fQ.uKj_c7_CWEXuLaUeerpP5ALEHjMkBj-NrfUOzPveArM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrY3Fyb2J1Ym10cGVoYWd6dW94Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTIwNDMyNywiZXhwIjoyMDc0NzgwMzI3fQ.uKj_c7_CWEXuLaUeerpP5ALEHjMkBj-NrfUOzPveArM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"phone_number\": $('Format Message1').item.json.to, \"chat_id\": $json.chat_id, \"customer_name\": $('Format Message1').item.json.customer_name, \"debt_amount\": $('Format Message1').item.json.debt_amount, \"due_date\": $('Format Message1').item.json.due_date } }}",
+        "options": {}
+      },
+      "name": "Store Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [48, 1712],
+      "id": "d6963496-7376-4397-ae58-f87f85217daf"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook - Incoming WhatsApp1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [-560, 1312],
+      "webhookId": "whatsapp-inbound",
+      "id": "2daba81d-5d86-4d77-9775-2080b9437c26"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.entry[0].changes[0].value.messages[0].type }}",
+              "value2": "text"
+            }
+          ]
+        }
+      },
+      "name": "Filter - Only Text1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [-368, 1312],
+      "id": "d2339002-ea83-49ef-b979-6a0bbdaa276b"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const entry = $input.item.json.body.entry[0];\nconst change = entry.changes[0];\nconst value = change.value;\nconst waMessage = value.messages[0];\nconst waContact = value.contacts[0];\n\nreturn {\n  from_number: waMessage.from,\n  message_text: waMessage.text.body,\n  message_id: waMessage.id,\n  timestamp: waMessage.timestamp,\n  contact_name: waContact.profile.name,\n  wa_id: waContact.wa_id\n};"
+      },
+      "name": "Parse WhatsApp Data1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-160, 1216],
+      "id": "584bbc9e-d39c-4a59-b148-45385c477eba"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.retellai.com/create-chat-completion",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer key_3ca65c9afda484a7ad1061596d14"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"chat_id\": $json.chat_id, \"message\": $json.message_text } }}",
+        "options": {}
+      },
+      "name": "Get AI Response1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1248, 1216],
+      "id": "a8568c6c-d361-4c53-a421-19459b7fae92"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const messages = $input.item.json.messages;\nconst agentMessage = messages.find(msg => msg.role === 'agent');\n\nreturn {\n  response_text: agentMessage ? agentMessage.content : 'Lo siento, no pude procesar tu mensaje.',\n  chat_id: $input.item.json.chat_id\n};"
+      },
+      "name": "Extract Response1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, 1216],
+      "id": "c572833e-19c2-4e71-9a6b-495236661afc"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://waba-v2.360dialog.io/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "D360-API-KEY",
+              "value": "fyzs8TZuhjKccQSnCSRz8oucAK"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"messaging_product\": \"whatsapp\", \"recipient_type\": \"individual\", \"to\": $('Parse WhatsApp Data1').item.json.from_number, \"type\": \"text\", \"text\": { \"body\": $json.response_text } } }}",
+        "options": {}
+      },
+      "name": "Send to WhatsApp1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1648, 1216],
+      "id": "8354e81b-1edc-4361-a651-30fb13a629e5"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"success\" } }}",
+        "options": {}
+      },
+      "name": "Respond OK1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1840, 1216],
+      "id": "72807dc7-4423-45d1-8c69-b46d6b60300e"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"ignored\" } }}",
+        "options": {}
+      },
+      "name": "Respond Ignored1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [-160, 1408],
+      "id": "b4c5c7fd-8171-4a33-9c98-fb5b57112b89"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-trigger",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook - Form Submission1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [-560, 1712],
+      "id": "54efc161-4c9a-4783-a6d8-5c1edb6f4618",
+      "webhookId": "18e42f6f-d027-47d2-911c-d797f8f171e2"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const formData = $input.item.json.body || $input.item.json;\n\nconst cleanPhone = (formData.phone_number || '').replace(/\\+/g, '');\nconst message = `Hola ${formData.customer_name},\\n\\nSomos del Banco de Córdoba. Le contactamos sobre su saldo pendiente de ${formData.debt_amount} ARS con vencimiento el ${formData.due_date}.\\n\\n¿Le gustaría hablar sobre opciones de pago?`;\n\nreturn {\n  to: cleanPhone,\n  message: message,\n  customer_name: formData.customer_name,\n  debt_amount: formData.debt_amount,\n  due_date: formData.due_date,\n  raw_phone: formData.phone_number\n};"
+      },
+      "name": "Format Message1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-368, 1712],
+      "id": "5cf68098-438f-4fd2-a72e-dc76b0538457"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://waba-v2.360dialog.io/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "D360-API-KEY",
+              "value": "fyzs8TZuhjKccQSnCSRz8oucAK"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"messaging_product\": \"whatsapp\", \"recipient_type\": \"individual\", \"to\": $('Format Message1').item.json.to, \"type\": \"text\", \"text\": { \"body\": $('Format Message1').item.json.message } } }}",
+        "options": {}
+      },
+      "name": "Send Initial Message1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [240, 1712],
+      "id": "180768f3-3ba2-4884-8191-b3a89f2b800b"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"success\", \"message\": \"WhatsApp message sent\", \"customer\": $('Format Message1').item.json.customer_name, \"sent_to\": $('Format Message1').item.json.raw_phone, \"chat_id\": $('Create Chat Session').item.json.chat_id } }}",
+        "options": {}
+      },
+      "name": "Respond Success1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [448, 1712],
+      "id": "0d0e95a0-dd72-4727-9024-eb8f06568930"
+    }
+  ],
+  "connections": {
+    "Lookup Session in Supabase": {
+      "main": [[{"node": "Check Session", "type": "main", "index": 0}]]
+    },
+    "Check Session": {
+      "main": [[{"node": "Has Existing Session?", "type": "main", "index": 0}]]
+    },
+    "Has Existing Session?": {
+      "main": [
+        [{"node": "Use Existing Session", "type": "main", "index": 0}],
+        [{"node": "Create New Retell Session", "type": "main", "index": 0}]
+      ]
+    },
+    "Create New Retell Session": {
+      "main": [[{"node": "Save New Session to Supabase", "type": "main", "index": 0}]]
+    },
+    "Save New Session to Supabase": {
+      "main": [[{"node": "Prepare New Session", "type": "main", "index": 0}]]
+    },
+    "Prepare New Session": {
+      "main": [[{"node": "Get AI Response1", "type": "main", "index": 0}]]
+    },
+    "Use Existing Session": {
+      "main": [[{"node": "Update Last Message Time", "type": "main", "index": 0}]]
+    },
+    "Update Last Message Time": {
+      "main": [[{"node": "Prepare Existing Session", "type": "main", "index": 0}]]
+    },
+    "Prepare Existing Session": {
+      "main": [[{"node": "Get AI Response1", "type": "main", "index": 0}]]
+    },
+    "Create Chat Session": {
+      "main": [[{"node": "Store Session", "type": "main", "index": 0}]]
+    },
+    "Store Session": {
+      "main": [[{"node": "Send Initial Message1", "type": "main", "index": 0}]]
+    },
+    "Webhook - Incoming WhatsApp1": {
+      "main": [[{"node": "Filter - Only Text1", "type": "main", "index": 0}]]
+    },
+    "Filter - Only Text1": {
+      "main": [
+        [{"node": "Parse WhatsApp Data1", "type": "main", "index": 0}],
+        [{"node": "Respond Ignored1", "type": "main", "index": 0}]
+      ]
+    },
+    "Parse WhatsApp Data1": {
+      "main": [[{"node": "Lookup Session in Supabase", "type": "main", "index": 0}]]
+    },
+    "Get AI Response1": {
+      "main": [[{"node": "Extract Response1", "type": "main", "index": 0}]]
+    },
+    "Extract Response1": {
+      "main": [[{"node": "Send to WhatsApp1", "type": "main", "index": 0}]]
+    },
+    "Send to WhatsApp1": {
+      "main": [[{"node": "Respond OK1", "type": "main", "index": 0}]]
+    },
+    "Webhook - Form Submission1": {
+      "main": [[{"node": "Format Message1", "type": "main", "index": 0}]]
+    },
+    "Format Message1": {
+      "main": [[{"node": "Create Chat Session", "type": "main", "index": 0}]]
+    },
+    "Send Initial Message1": {
+      "main": [[{"node": "Respond Success1", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
