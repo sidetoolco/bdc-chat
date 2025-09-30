@@ -32,21 +32,34 @@ Messages show `{{greeting}}`, `{{name}}`, `{{amount}}`, `{{due_date}}` literally
 ### Symptoms
 AI sends the same message twice when customer replies.
 
-### Possible Causes
+### Root Cause
+WhatsApp API sends webhook notifications for:
+1. **Incoming messages** (customer → you) - has `value.messages` array
+2. **Status updates** (delivery/read receipts for messages YOU sent) - has `value.statuses` array
 
-#### A. Webhook Receiving Both Sent and Received Messages
-WhatsApp may notify your webhook for both incoming (customer → you) and outgoing (you → customer) messages.
+Both types trigger your webhook, causing duplicate processing.
 
-**Solution**: Add a filter to only process incoming messages:
-- Check if the message is from a customer (not from your business number)
-- In WhatsApp webhook payload, look for `message.from` vs your business phone number
+### Solution ✅ FIXED
+The workflow now filters out status updates:
 
-#### B. Multiple Webhook Subscriptions
+**Filter - Only Text node** checks:
+```javascript
+// Only process if messages array exists AND it's a text message
+value.messages exists && value.messages[0].type === "text"
+```
+
+This prevents:
+- Status updates (has `value.statuses` instead of `value.messages`)
+- Non-text messages (images, audio, etc.)
+
+### Possible Other Causes
+
+#### A. Multiple Webhook Subscriptions
 You may have registered the same webhook URL multiple times.
 
 **Solution**: Check 360dialog dashboard for duplicate webhook configurations
 
-#### C. Form Submission Triggering Webhook
+#### B. Form Submission Triggering Webhook
 If your form sends the initial message and that triggers the webhook, it creates a loop.
 
 **Solution**:
@@ -55,10 +68,10 @@ If your form sends the initial message and that triggers the webhook, it creates
 
 ### Debugging Steps
 
-1. **Check n8n execution logs**: See how many times the webhook fires
-2. **Check WhatsApp payload**: Look for `message.from` field
-3. **Add logging**: In "Parse WhatsApp Data" node, log the full payload
-4. **Test timing**: Submit form, wait 30 seconds, then reply - if duplicates appear immediately, it's not a loop
+1. **Check n8n execution logs**: See what triggers each execution
+2. **Look for `value.statuses`**: If present, it's a status update (should be ignored)
+3. **Look for `value.messages`**: If present, it's an incoming message (should be processed)
+4. **Test**: Send one message and watch for two webhook calls - one with messages, one with statuses
 
 ## Issue 3: Context Not Maintained
 

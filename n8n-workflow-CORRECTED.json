@@ -95,7 +95,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const entry = $input.item.json.body.entry[0];\nconst change = entry.changes[0];\nconst value = change.value;\nconst waMessage = value.messages[0];\nconst waContact = value.contacts[0];\n\nreturn {\n  from_number: waMessage.from,\n  message_text: waMessage.text.body,\n  message_id: waMessage.id,\n  timestamp: waMessage.timestamp,\n  contact_name: waContact.profile.name,\n  wa_id: waContact.wa_id\n};"
+        "jsCode": "const entry = $input.item.json.body.entry[0];\nconst change = entry.changes[0];\nconst value = change.value;\n\nconst waMessage = value.messages[0];\nconst waContact = value.contacts[0];\n\nreturn {\n  from_number: waMessage.from,\n  message_text: waMessage.text.body,\n  message_id: waMessage.id,\n  timestamp: waMessage.timestamp,\n  contact_name: waContact.profile.name,\n  wa_id: waContact.wa_id\n};"
       },
       "name": "Parse WhatsApp Data",
       "type": "n8n-nodes-base.code",
@@ -106,17 +106,32 @@
     {
       "parameters": {
         "conditions": {
-          "string": [
+          "options": {
+            "combineOperation": "all"
+          },
+          "conditions": [
             {
-              "value1": "={{ $json.body.entry[0].changes[0].value.messages[0].type }}",
-              "value2": "text"
+              "leftValue": "={{ $json.body.entry[0].changes[0].value.messages }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists"
+              }
+            },
+            {
+              "leftValue": "={{ $json.body.entry[0].changes[0].value.messages[0].type }}",
+              "rightValue": "text",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
             }
           ]
         }
       },
       "name": "Filter - Only Text",
       "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
+      "typeVersion": 2,
       "position": [-1536, 160],
       "id": "filter-only-text"
     },
