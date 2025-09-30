@@ -1,7 +1,7 @@
 # Form Submission Flow - How It Works
 
 ## Overview
-The form submission creates a Retell AI chat session with dynamic variables, stores it in Supabase, and sends a simple "Hola" message to WhatsApp to initiate the conversation.
+The form submission creates a Retell AI chat session with dynamic variables and stores it in Supabase. The customer initiates the conversation by sending the first message.
 
 ## Flow Steps
 
@@ -12,8 +12,9 @@ The form submission creates a Retell AI chat session with dynamic variables, sto
    ↓
 3. Create Chat (/create-chat with retell_llm_dynamic_variables)
    ├─ agent_id
+   ├─ agent_version: 9
    ├─ metadata: { phone_number, customer_name, debt_amount, due_date }
-   ├─ retell_llm_dynamic_variables: { name, amount, due_date } ✅ NEW
+   ├─ retell_llm_dynamic_variables: { greeting, name, amount, due_date } ✅
    ↓
 4. Store Session (save to Supabase)
    ├─ chat_id (primary key)
@@ -22,15 +23,15 @@ The form submission creates a Retell AI chat session with dynamic variables, sto
    ├─ debt_amount
    ├─ due_date
    ↓
-5. Prepare Initial Message
-   ├─ phone_number
-   ├─ chat_id
-   ├─ initial_message: "Hola"
-   ↓
-6. Send Initial WhatsApp (send "Hola" to customer)
-   ↓
-7. Respond Success (return chat_id to form)
+5. Respond Success (return chat_id to form)
+   ├─ Status: "Session created. Customer will receive greeting when they message."
+   ├─ NO MESSAGE SENT TO CUSTOMER ✅ NEW
 ```
+
+**Important Change**: The form NO LONGER sends an initial WhatsApp message. Instead:
+- Session is created and stored
+- Customer initiates contact by sending first message
+- AI responds with personalized greeting using dynamic variables
 
 ## Key Changes
 
@@ -59,19 +60,17 @@ The form submission creates a Retell AI chat session with dynamic variables, sto
 
 This replaces `{{name}}`, `{{amount}}`, and `{{due_date}}` in the AI agent's prompt.
 
-### 2. Simplified Initial Message
+### 2. No Initial Message Sent
 
 **Before**:
-- Called `/create-chat-completion` to get AI greeting
-- Extracted agent's response
-- Sent AI-generated greeting to WhatsApp
-- **Problem**: Caused multiple messages to fire
+- Form sent "Hola" to WhatsApp after creating session
+- **Problem**: Triggered webhook, causing duplicate "Hola" messages (form's Hola + AI's response to Hola)
 
 **After**:
-- Just send "Hola" to WhatsApp
-- Customer replies "Hola" back
-- Then the conversation continues via the webhook flow
-- **Benefit**: Single message, clean start
+- Form only creates session and stores in Supabase
+- Customer sends first message to initiate conversation
+- AI responds with personalized greeting using dynamic variables
+- **Benefit**: No duplicates, customer-initiated flow
 
 ## How Template Variables Work
 
@@ -92,25 +91,29 @@ When you pass `retell_llm_dynamic_variables`, Retell replaces:
 
 **Important**: The variable names in `retell_llm_dynamic_variables` must match the template variable names in your agent prompt (without the `{{` `}}`).
 
-## Why This Fixes Multiple Messages
+## Why This Fixes Multiple "Hola" Messages
 
-**Old flow**:
+**Old flow (BROKEN)**:
 1. Form submits
-2. Calls `/create-chat-completion` with "Hola"
-3. AI responds (possibly multiple times if streaming)
-4. Sends all responses to WhatsApp
+2. Creates chat session
+3. Sends "Hola" to WhatsApp
+4. WhatsApp webhook receives "Hola" → triggers workflow
+5. AI responds to "Hola" with another "Hola"
+6. Customer sees multiple "Hola" messages
 
-**New flow**:
+**New flow (FIXED)**:
 1. Form submits
 2. Creates chat session with variables
-3. Sends simple "Hola" from n8n (not AI)
-4. Customer replies
-5. Webhook handles customer's reply → AI responds ONCE
+3. Stores in Supabase
+4. **No message sent**
+5. Customer sends first message (e.g., "Hola")
+6. Webhook processes → AI responds with personalized greeting
+7. Customer sees only ONE response
 
 ## Testing
 
 1. Submit form with customer data
-2. Customer receives "Hola" on WhatsApp
-3. Customer replies "si" or any message
+2. **Customer does NOT receive any message** (this is correct!)
+3. Customer initiates by sending "Hola" or any message
 4. AI responds with greeting using `{{name}}`, `{{amount}}`, `{{due_date}}`
-5. Conversation continues naturally
+5. Conversation continues naturally with context maintained

@@ -461,13 +461,13 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ { \"status\": \"success\", \"chat_id\": $('Prepare Initial Message').item.json.chat_id } }}",
+        "responseBody": "={{ { \"status\": \"success\", \"chat_id\": $('Create Chat').item.json.chat_id, \"message\": \"Session created. Customer will receive greeting when they message.\" } }}",
         "options": {}
       },
       "name": "Respond Success",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [-368, 512],
+      "position": [-784, 512],
       "id": "respond-success"
     }
   ],
@@ -533,12 +533,6 @@
       "main": [[{"node": "Store Session", "type": "main", "index": 0}]]
     },
     "Store Session": {
-      "main": [[{"node": "Prepare Initial Message", "type": "main", "index": 0}]]
-    },
-    "Prepare Initial Message": {
-      "main": [[{"node": "Send Initial WhatsApp", "type": "main", "index": 0}]]
-    },
-    "Send Initial WhatsApp": {
       "main": [[{"node": "Respond Success", "type": "main", "index": 0}]]
     }
   },
