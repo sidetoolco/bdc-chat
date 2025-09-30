@@ -28,7 +28,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const response = $input.item.json;\nconst phoneNumber = $('Parse WhatsApp Data1').item.json.from_number;\nconst messageText = $('Parse WhatsApp Data1').item.json.message_text;\n\nlet chatId = null;\n\n// Supabase can return either an array or a single object\nif (Array.isArray(response) && response.length > 0) {\n  chatId = response[0].chat_id;\n} else if (response && response.chat_id) {\n  // Single object response\n  chatId = response.chat_id;\n}\n\nreturn {\n  phone_number: phoneNumber,\n  message_text: messageText,\n  existing_chat_id: chatId,\n  has_session: !!chatId,\n  contact_name: $('Parse WhatsApp Data1').item.json.contact_name,\n  wa_id: $('Parse WhatsApp Data1').item.json.wa_id\n};"
+        "jsCode": "// n8n automatically unwraps array items, so $input.item.json is the object itself\nconst supabaseResult = $input.item.json;\nconst phoneNumber = $('Parse WhatsApp Data1').item.json.from_number;\nconst messageText = $('Parse WhatsApp Data1').item.json.message_text;\n\n// Extract chat_id directly from the result\nconst chatId = supabaseResult.chat_id || null;\n\nreturn {\n  phone_number: phoneNumber,\n  message_text: messageText,\n  existing_chat_id: chatId,\n  has_session: !!chatId,\n  contact_name: $('Parse WhatsApp Data1').item.json.contact_name,\n  wa_id: $('Parse WhatsApp Data1').item.json.wa_id\n};"
       },
       "name": "Check Session",
       "type": "n8n-nodes-base.code",
