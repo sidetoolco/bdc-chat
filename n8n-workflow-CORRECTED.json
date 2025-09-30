@@ -421,13 +421,41 @@
     },
     {
       "parameters": {
+        "method": "POST",
+        "url": "https://api.retellai.com/create-chat-completion",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer key_3ca65c9afda484a7ad1061596d14"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"chat_id\": $('Create Chat').item.json.chat_id, \"content\": \"init\" } }}",
+        "options": {}
+      },
+      "name": "Send Agent Greeting to Retell",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [-880, 512],
+      "id": "send-agent-greeting-to-retell"
+    },
+    {
+      "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const formData = $('Format Data').item.json;\n\n// Build the initial greeting using the form data\nconst greeting = `Hola. Soy Pilar, agente virtual del Banco de Córdoba. ¿Me comunico con ${formData.customer_name}?`;\n\nreturn {\n  phone_number: formData.to,\n  greeting_message: greeting,\n  chat_id: $('Create Chat').item.json.chat_id\n};"
+        "jsCode": "const formData = $('Format Data').item.json;\nconst retellResponse = $input.item.json;\n\n// Get the AI-generated greeting from Retell\nconst messages = retellResponse.messages || [];\nconst agentMessage = messages.find(msg => msg.role === 'agent');\n\n// Fallback to template if no response\nconst greeting = agentMessage ? agentMessage.content : `Hola. Soy Pilar, agente virtual del Banco de Córdoba. ¿Me comunico con ${formData.customer_name}?`;\n\nreturn {\n  phone_number: formData.to,\n  greeting_message: greeting,\n  chat_id: $('Create Chat').item.json.chat_id\n};"
       },
       "name": "Prepare Initial Greeting",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-784, 512],
+      "position": [-672, 512],
       "id": "prepare-initial-greeting"
     },
     {
@@ -455,7 +483,7 @@
       "name": "Send Initial WhatsApp",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [-368, 512],
+      "position": [-464, 512],
       "id": "send-initial-whatsapp"
     },
     {
@@ -467,7 +495,7 @@
       "name": "Respond Success",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [-160, 512],
+      "position": [-256, 512],
       "id": "respond-success"
     }
   ],
@@ -533,6 +561,9 @@
       "main": [[{"node": "Store Session", "type": "main", "index": 0}]]
     },
     "Store Session": {
+      "main": [[{"node": "Send Agent Greeting to Retell", "type": "main", "index": 0}]]
+    },
+    "Send Agent Greeting to Retell": {
       "main": [[{"node": "Prepare Initial Greeting", "type": "main", "index": 0}]]
     },
     "Prepare Initial Greeting": {
