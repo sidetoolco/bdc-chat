@@ -421,14 +421,42 @@
     },
     {
       "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "const formData = $('Format Data').item.json;\nconst chatId = $('Create Chat').item.json.chat_id;\n\nreturn {\n  phone_number: formData.to,\n  chat_id: chatId,\n  initial_message: 'Hola'\n};"
+        "method": "POST",
+        "url": "https://api.retellai.com/create-chat-completion",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer key_3ca65c9afda484a7ad1061596d14"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"chat_id\": $('Create Chat').item.json.chat_id, \"content\": \"start\" } }}",
+        "options": {}
       },
-      "name": "Prepare Initial Message",
+      "name": "Get Initial AI Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [-784, 512],
+      "id": "get-initial-ai-message"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const messages = $input.item.json.messages || [];\nconst agentMessage = messages.find(msg => msg.role === 'agent');\nconst formData = $('Format Data').item.json;\n\nreturn {\n  phone_number: formData.to,\n  greeting_message: agentMessage ? agentMessage.content : 'Hola. Soy Pilar, agente virtual del Banco de Córdoba. ¿Me comunico con ' + formData.customer_name + '?'\n};"
+      },
+      "name": "Extract AI Greeting",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-784, 512],
-      "id": "prepare-initial-message"
+      "position": [-576, 512],
+      "id": "extract-ai-greeting"
     },
     {
       "parameters": {
@@ -449,25 +477,25 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { \"messaging_product\": \"whatsapp\", \"recipient_type\": \"individual\", \"to\": $json.phone_number, \"type\": \"text\", \"text\": { \"body\": $json.initial_message } } }}",
+        "jsonBody": "={{ { \"messaging_product\": \"whatsapp\", \"recipient_type\": \"individual\", \"to\": $json.phone_number, \"type\": \"text\", \"text\": { \"body\": $json.greeting_message } } }}",
         "options": {}
       },
       "name": "Send Initial WhatsApp",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [-576, 512],
+      "position": [-368, 512],
       "id": "send-initial-whatsapp"
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ { \"status\": \"success\", \"chat_id\": $('Create Chat').item.json.chat_id, \"message\": \"Session created. Customer will receive greeting when they message.\" } }}",
+        "responseBody": "={{ { \"status\": \"success\", \"chat_id\": $('Create Chat').item.json.chat_id, \"message\": \"Initial greeting sent to customer.\" } }}",
         "options": {}
       },
       "name": "Respond Success",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [-784, 512],
+      "position": [-160, 512],
       "id": "respond-success"
     }
   ],
@@ -533,6 +561,15 @@
       "main": [[{"node": "Store Session", "type": "main", "index": 0}]]
     },
     "Store Session": {
+      "main": [[{"node": "Get Initial AI Message", "type": "main", "index": 0}]]
+    },
+    "Get Initial AI Message": {
+      "main": [[{"node": "Extract AI Greeting", "type": "main", "index": 0}]]
+    },
+    "Extract AI Greeting": {
+      "main": [[{"node": "Send Initial WhatsApp", "type": "main", "index": 0}]]
+    },
+    "Send Initial WhatsApp": {
       "main": [[{"node": "Respond Success", "type": "main", "index": 0}]]
     }
   },
