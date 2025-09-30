@@ -47,36 +47,6 @@
             color: #111827;
         }
 
-        .header-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .header-btn {
-            padding: 8px 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            background: white;
-            color: #374151;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .header-btn:hover {
-            background: #f9fafb;
-        }
-
-        .header-btn.primary {
-            background: #25D366;
-            color: white;
-            border-color: #25D366;
-        }
-
-        .header-btn.primary:hover {
-            background: #128C7E;
-        }
 
         .content {
             flex: 1;
@@ -279,14 +249,6 @@
             color: #dc2626;
         }
 
-        .partner-logo {
-            position: absolute;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            height: 30px;
-            opacity: 0.6;
-        }
 
         .status-container {
             display: none;
@@ -325,10 +287,6 @@
         <main class="main-content">
             <header class="top-header">
                 <h1 class="header-title">Sistema de Cobranzas - WhatsApp</h1>
-                <div class="header-actions">
-                    <button class="header-btn" id="exportBtn">Exportar</button>
-                    <button class="header-btn primary" id="resetBtn">Nueva Sesión</button>
-                </div>
             </header>
 
             <div class="content">
@@ -397,7 +355,6 @@
                         </div>
                     </div>
 
-                    <img src="bancor-verde.png" alt="Banco de Córdoba" class="partner-logo">
                 </div>
 
                 <div class="info-panel">
@@ -462,24 +419,7 @@
                     this.value = parseFloat(this.value).toFixed(2);
                 }
             });
-
-            document.getElementById('resetBtn').addEventListener('click', resetForm);
         });
-
-        function resetForm() {
-            document.getElementById('customerForm').reset();
-
-            const defaultDate = new Date();
-            defaultDate.setDate(defaultDate.getDate() + 30);
-            document.getElementById('dueDate').value = defaultDate.toISOString().split('T')[0];
-
-            const inputs = document.querySelectorAll('.form-input, .form-button');
-            inputs.forEach(input => input.disabled = false);
-
-            document.getElementById('successMessage').style.display = 'none';
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('statusContainer').style.display = 'none';
-        }
 
         // Handle form submission
         document.getElementById('customerForm').addEventListener('submit', async function(e) {
