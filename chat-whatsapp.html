@@ -393,8 +393,8 @@
 
                         <div class="form-group">
                             <label class="form-label">Número de WhatsApp</label>
-                            <input type="tel" class="form-input" id="phoneNumber" required placeholder="+1234567890">
-                            <small style="color: #6b7280; font-size: 12px;">Incluir código de país (ej: +1, +52)</small>
+                            <input type="tel" class="form-input" id="phoneNumber" required placeholder="+5492364337950 o +17048169059">
+                            <small style="color: #6b7280; font-size: 12px;">Incluir código de país. Ej: +549 (Argentina), +1 (USA)</small>
                         </div>
 
                         <div class="form-group">
@@ -526,14 +526,62 @@
             document.getElementById('statusContainer').style.display = 'none';
         }
 
+        // Phone number validation and formatting
+        function cleanPhoneNumber(phone) {
+            // Remove all non-digit characters except +
+            let cleaned = phone.replace(/[^\d+]/g, '');
+
+            // If it doesn't start with +, add it
+            if (!cleaned.startsWith('+')) {
+                cleaned = '+' + cleaned;
+            }
+
+            // Remove any + that's not at the start
+            cleaned = '+' + cleaned.substring(1).replace(/\+/g, '');
+
+            return cleaned;
+        }
+
+        function validatePhoneNumber(phone) {
+            // Phone should be +[country_code][number]
+            // Minimum: +1234567890 (11 chars including +)
+            // Maximum: typically 15 chars including +
+            const cleaned = cleanPhoneNumber(phone);
+            const pattern = /^\+\d{10,14}$/;
+
+            if (!pattern.test(cleaned)) {
+                return {
+                    valid: false,
+                    cleaned: cleaned,
+                    error: 'Formato inválido. Use: +[código país][número] (ej: +5492364337950, +17048169059)'
+                };
+            }
+
+            return { valid: true, cleaned: cleaned };
+        }
+
+        // Real-time phone formatting
+        document.getElementById('phoneNumber').addEventListener('input', function(e) {
+            const validation = validatePhoneNumber(e.target.value);
+            this.value = validation.cleaned;
+        });
+
         // Handle form submission
         document.getElementById('customerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const customerName = document.getElementById('customerName').value;
-            const phoneNumber = document.getElementById('phoneNumber').value;
+            const phoneInput = document.getElementById('phoneNumber').value;
             const debtAmount = document.getElementById('debtAmount').value;
             const dueDate = document.getElementById('dueDate').value;
+
+            // Validate and clean phone number
+            const phoneValidation = validatePhoneNumber(phoneInput);
+            if (!phoneValidation.valid) {
+                showError(phoneValidation.error);
+                return;
+            }
+            const phoneNumber = phoneValidation.cleaned;
 
             // Show loading
             document.getElementById('chatPlaceholder').style.display = 'none';
