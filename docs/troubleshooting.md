@@ -73,6 +73,26 @@ If your form sends the initial message and that triggers the webhook, it creates
 3. **Look for `value.messages`**: If present, it's an incoming message (should be processed)
 4. **Test**: Send one message and watch for two webhook calls - one with messages, one with statuses
 
+### Common Error: Cannot Read Properties of Undefined
+
+**Error message**: `Cannot read properties of undefined (reading '0') [line 5]`
+
+**Location**: Parse WhatsApp Data node
+
+**Root cause**: The webhook received a status update (has `value.statuses`, no `value.messages`), but Parse WhatsApp Data tried to access `value.messages[0]`.
+
+**Why it happens**:
+- WhatsApp sends webhook for EVERY event: incoming messages AND status updates
+- Status updates (delivery/read receipts) don't have `value.messages` array
+- If pinned test data contains a status update, it will fail
+
+**Solution**: The "Filter - Only Text Messages" node already prevents this by checking:
+```javascript
+value.messages exists && value.messages[0].type === "text"
+```
+
+**Important**: Do NOT pin status update data for testing. Use actual incoming message data.
+
 ## Issue 3: Context Not Maintained
 
 ### Symptoms
