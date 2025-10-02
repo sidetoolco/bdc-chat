@@ -67,7 +67,28 @@
         }
 
         .form-header {
+            margin-bottom: 20px;
+        }
+
+        .notice-message {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            padding: 16px;
+            background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%);
+            border: 2px solid #ffc107;
+            border-radius: 12px;
             margin-bottom: 24px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #856404;
+        }
+
+        .notice-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            color: #ffc107;
         }
 
         .form-title {
@@ -372,6 +393,15 @@
                 <div class="form-panel">
                     <div class="form-header">
                         <h2 class="form-title">Form</h2>
+                    </div>
+
+                    <div class="notice-message">
+                        <svg class="notice-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>
+                        <div>
+                            <strong>Importante:</strong> Por favor, guarde este número <strong>+1 (555) 887-5639</strong> y envíele un mensaje de texto primero. Luego complete este formulario. Disculpe las molestias, estamos en proceso de aprobación completa con WhatsApp.
+                        </div>
                     </div>
 
                     <form id="customerForm">
