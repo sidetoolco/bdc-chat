@@ -5,8 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kleva | Dashboard - WhatsApp</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,300&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --clr-black: 0, 0, 0;
+            --clr-white: 255, 255, 255;
+            --clr-pink: 213, 51, 156;
+            --clr-gray: 192, 192, 192;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --font-sans: 'Hanken Grotesk', sans-serif;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,8 +26,9 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: rgb(var(--clr-black));
+            color: rgb(var(--clr-white));
             height: 100vh;
             overflow: hidden;
         }
@@ -33,18 +46,21 @@
         }
 
         .top-header {
-            background: white;
-            padding: 16px 24px;
-            border-bottom: 1px solid #e5e7eb;
+            background: rgba(var(--clr-black), 1);
+            padding: 24px 32px;
+            border-bottom: 1px solid rgba(var(--clr-gray), 0.2);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
         .header-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #111827;
+            font-size: 16px;
+            font-weight: 500;
+            font-family: var(--font-mono);
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+            color: rgb(var(--clr-white));
         }
 
         .content {
@@ -58,44 +74,46 @@
 
         .form-panel {
             width: 100%;
-            max-width: 480px;
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            max-width: 510px;
+            background: rgba(var(--clr-white), 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(var(--clr-gray), 0.15);
+            padding: 48px;
             position: relative;
         }
 
         .form-header {
-            margin-bottom: 20px;
+            margin-bottom: 32px;
         }
 
         .notice-message {
             display: flex;
             align-items: start;
             gap: 12px;
-            padding: 16px;
-            background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%);
-            border: 2px solid #ffc107;
-            border-radius: 12px;
-            margin-bottom: 24px;
+            padding: 20px;
+            background: rgba(var(--clr-pink), 0.1);
+            border: 1px solid rgba(var(--clr-pink), 0.3);
+            border-radius: 8px;
+            margin-bottom: 32px;
             font-size: 14px;
             line-height: 1.5;
-            color: #856404;
+            color: rgb(var(--clr-white));
         }
 
         .notice-icon {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             flex-shrink: 0;
-            color: #ffc107;
+            color: rgba(var(--clr-pink), 1);
         }
 
         .form-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 4px;
+            font-size: 28px;
+            font-weight: 300;
+            font-family: var(--font-sans);
+            color: rgb(var(--clr-white));
+            letter-spacing: -1px;
+            text-align: center;
         }
 
         .form-subtitle {
@@ -104,32 +122,40 @@
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .form-label {
             display: block;
             font-size: 14px;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 6px;
+            font-weight: 400;
+            font-family: var(--font-mono);
+            color: rgb(var(--clr-white));
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
         }
 
         .form-input {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
+            border: 1px solid rgba(var(--clr-gray), 0.3);
+            border-radius: 8px;
             font-size: 15px;
+            font-family: var(--font-sans);
             transition: all 0.2s;
-            background: #f9fafb;
+            background: rgba(var(--clr-white), 0.05);
+            color: rgb(var(--clr-white));
+        }
+
+        .form-input::placeholder {
+            color: rgba(var(--clr-gray), 0.6);
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #25D366;
-            box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.1);
-            background: white;
+            border-color: rgba(var(--clr-pink), 1);
+            box-shadow: 0 0 0 3px rgba(var(--clr-pink), 0.15);
+            background: rgba(var(--clr-white), 0.08);
         }
 
         .phone-input-wrapper {
@@ -152,36 +178,35 @@
 
         .form-button {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-            color: white;
+            padding: 12px 20px;
+            background-color: rgba(var(--clr-white), 1);
+            color: rgba(var(--clr-black), 1);
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 500;
+            font-family: var(--font-mono);
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            height: 44px;
+            margin-top: 12px;
         }
 
         .form-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
-        }
-
-        .form-button:active {
-            transform: translateY(0);
+            background-color: rgba(var(--clr-pink), 1);
+            color: rgba(var(--clr-white), 1);
         }
 
         .form-button:disabled {
-            background: #d1d5db;
+            background: rgba(var(--clr-gray), 0.3);
+            color: rgba(var(--clr-gray), 1);
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
 
         .whatsapp-icon {
@@ -319,43 +344,43 @@
             display: none;
             align-items: center;
             gap: 10px;
-            padding: 14px 16px;
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            border: 2px solid #86efac;
-            border-radius: 12px;
-            margin-top: 20px;
+            padding: 16px;
+            background: rgba(var(--clr-pink), 0.15);
+            border: 1px solid rgba(var(--clr-pink), 0.4);
+            border-radius: 8px;
+            margin-top: 24px;
             font-size: 14px;
-            font-weight: 500;
-            color: #15803d;
+            font-family: var(--font-mono);
+            color: rgb(var(--clr-white));
         }
 
         .success-icon {
             width: 16px;
             height: 16px;
-            color: #15803d;
+            color: rgba(var(--clr-pink), 1);
         }
 
         .error-message {
             display: none;
             align-items: center;
             gap: 10px;
-            padding: 14px 16px;
-            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-            border: 2px solid #fca5a5;
-            border-radius: 12px;
-            margin-top: 20px;
+            padding: 16px;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-top: 24px;
             font-size: 14px;
-            font-weight: 500;
-            color: #dc2626;
+            font-family: var(--font-mono);
+            color: rgb(var(--clr-white));
         }
 
         .status-container {
             display: none;
             margin-top: 24px;
-            padding: 18px;
-            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-            border-radius: 12px;
-            border: 2px solid #e5e7eb;
+            padding: 16px;
+            background: rgba(var(--clr-white), 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(var(--clr-gray), 0.2);
         }
 
         .status-item {
@@ -363,7 +388,9 @@
             align-items: center;
             gap: 8px;
             margin-bottom: 8px;
-            font-size: 14px;
+            font-size: 13px;
+            font-family: var(--font-mono);
+            color: rgba(var(--clr-gray), 1);
         }
 
         .status-item:last-child {
@@ -371,8 +398,8 @@
         }
 
         .status-icon {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
         }
 
         @media (max-width: 768px) {
@@ -386,7 +413,7 @@
     <div class="layout">
         <main class="main-content">
             <header class="top-header">
-                <h1 class="header-title">Sistema de Cobranzas - WhatsApp</h1>
+                <h1 class="header-title">KLEVA COLLECTIONS</h1>
             </header>
 
             <div class="content">
