@@ -528,9 +528,7 @@
             }
             const phoneNumber = phoneValidation.cleaned;
 
-            // Show loading
-            document.getElementById('chatPlaceholder').style.display = 'none';
-            document.getElementById('loadingState').style.display = 'block';
+            // Hide messages
             document.getElementById('successMessage').style.display = 'none';
             document.getElementById('errorMessage').style.display = 'none';
 
@@ -568,7 +566,6 @@
         });
 
         function showSuccess(result) {
-            document.getElementById('loadingState').style.display = 'none';
             document.getElementById('successMessage').style.display = 'flex';
             document.getElementById('statusContainer').style.display = 'block';
 
@@ -579,10 +576,8 @@
         }
 
         function showError(message) {
-            document.getElementById('loadingState').style.display = 'none';
             document.getElementById('errorMessage').style.display = 'flex';
             document.getElementById('errorText').textContent = message;
-            document.getElementById('chatPlaceholder').style.display = 'block';
 
             const inputs = document.querySelectorAll('.form-input, .form-button');
             inputs.forEach(input => input.disabled = false);
